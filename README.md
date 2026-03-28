@@ -1,5 +1,63 @@
+# ¿Como colaborar en este proyecto?
+Usando Fork (más usado en proyectos grandes)
+Haces un Fork (copia del repo a tu cuenta).
+Trabajas en tu copia.
+Envías un Pull Request para proponer cambios.
+🔹 2. Flujo de trabajo básico (el más importante)
+1. Clonar el repositorio
+git clone https://github.com/usuario/repositorio.git
+2. Crear una rama (MUY IMPORTANTE 🚨)
+
+Nunca trabajes directo en main.
+
+git checkout -b mi-rama
+
+Ejemplo:
+
+git checkout -b feature-login
+3. Hacer cambios y guardarlos
+git add .
+git commit -m "Agrega funcionalidad de login"
+4. Subir cambios
+git push origin mi-rama
+5. Crear Pull Request
+Vas al repositorio en GitHub
+Click en Compare & pull request
+Explicas los cambios
+6. Revisión y merge
+
+Otro miembro revisa y aprueba:
+
+Puede comentar
+Puede pedir cambios
+Finalmente se hace merge a main
+🔹 3. Buenas prácticas (esto te salva en equipo 💯)
+✔️ Siempre usa ramas
+main → estable
+develop → desarrollo
+feature/... → nuevas funcionalidades
+✔️ Actualiza antes de trabajar
+git pull origin main
+✔️ Commits claros
+
+❌ "arreglos"
+✅ "Corrige validación de contraseña"
+
+✔️ Evita conflictos
+No trabajen en el mismo archivo al tiempo
+Comuníquense (muy importante)
+🔹 4. Problemas comunes
+⚠️ Conflictos de merge
+
+Pasan cuando dos personas modifican lo mismo.
+
+Git te pedirá elegir qué versión dejar.
+
+⚠️ Olvidar hacer pull
+
+Puedes sobrescribir cambios de otros
+
 # BookingManagerSystem
-Para colaborar en este Proyecto 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
 
 ## Development server
