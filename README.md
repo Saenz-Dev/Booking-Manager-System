@@ -1,7 +1,7 @@
 # Pasos para colaborar 
 1. Clonar repositorio
 ```bash
-git clone https://github.com/usuario/repositorio.git
+git clone [https://github.com/usuario/repositorio.git](https://github.com/Saenz-Dev/Booking-Manager-System.git)
 ```
 2. Crear una rama
 ```bash
