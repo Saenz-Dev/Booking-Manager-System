@@ -1,3 +1,94 @@
-<h1>Este es el modulo de registrar</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro | Hacienda Linda</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
 
-<p>registrar works!</p>
+  <main class="auth-container">
+    <form id="registroForm" class="auth-card">
+
+      <div class="auth-header">
+        <div class="icon">🏨</div>
+        <h1>Crear cuenta</h1>
+        <p>Sistema de reservas campestre</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Nombres</label>
+          <input type="text" id="nombres" required>
+        </div>
+
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input type="text" id="apellidos" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de documento</label>
+        <select id="tipoDocumento" required>
+          <option value="">Seleccione</option>
+          <option>Cédula de ciudadanía</option>
+          <option>Tarjeta de identidad</option>
+          <option>Pasaporte</option>
+          <option>Cédula extranjera</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Número de documento</label>
+        <input type="number" id="documento" required>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="fechaNacimiento" required>
+      </div>
+
+      <div class="form-group">
+        <label>Ciudad</label>
+        <input type="text" id="ciudad" required>
+      </div>
+
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="email" required>
+      </div>
+
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="tel" id="telefono" required>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="password" required minlength="6">
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar contraseña</label>
+          <input type="password" id="confirmPassword" required>
+        </div>
+      </div>
+
+      <div class="terms">
+        <input type="checkbox" id="terminos" required>
+        <label>Acepto términos y condiciones</label>
+      </div>
+
+      <button type="submit" class="btn-primary">Registrarse</button>
+
+      <p class="login-link">¿Ya tienes cuenta? <a href="#">Iniciar sesión</a></p>
+
+    </form>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
