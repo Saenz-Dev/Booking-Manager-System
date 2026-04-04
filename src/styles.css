@@ -14,7 +14,9 @@ textarea {
 }
 
 body {
-    margin: 0;
+    background: #121212;
+    background: linear-gradient(135deg, #f0f0f0, #b6b9b9);
+    min-height: 100vh;
 }
 
 .auth-card {
@@ -53,4 +55,9 @@ body {
 
 .form-control::placeholder {
     color: #aaa;
+}
+
+.form-registrar {
+    max-width: 25%;
+    margin: 0;
 }
