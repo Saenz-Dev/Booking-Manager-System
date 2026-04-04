@@ -1,1 +1,67 @@
-<p >Yeimi Lorena</p>
+<div class="login-wrapper">
+
+  <!-- LADO IZQUIERDO LOGIN -->
+  <div class="login-left">
+
+    <div class="login-card">
+
+      <h2>Iniciar sesión</h2>
+      <p class="subtitle">Bienvenido</p>
+
+      <form (ngSubmit)="iniciarSesion()">
+
+        <div class="input-group">
+          <label>Correo electrónico</label>
+          <input 
+            type="email"
+            placeholder="tu@correo.com"
+            [(ngModel)]="email"
+            name="email"
+            required
+          >
+        </div>
+
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input 
+            type="password"
+            placeholder="••••••••"
+            [(ngModel)]="password"
+            name="password"
+            required
+          >
+        </div>
+
+        <div class="forgot">
+          <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="login-btn">
+          Entrar
+        </button>
+
+        <p class="error" *ngIf="error">{{error}}</p>
+
+        <div class="register">
+          ¿No tienes cuenta?
+          <a routerLink="/registrar">Regístrate</a>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- LADO DERECHO IMAGEN -->
+  <div class="login-right">
+
+    <div class="overlay">
+      <h1>Booking Manager</h1>
+      <p>Gestiona reservas de forma simple y profesional</p>
+    </div>
+
+  </div>
+
+</div>
