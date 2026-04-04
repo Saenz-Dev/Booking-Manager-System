@@ -1,4 +1,61 @@
-/* You can add global styles to this file, and also import other style files */
-h1 {
-    color: aqua;
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
+:root {
+    --font-professional: 'Source Sans 3', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+    font-family: var(--font-professional);
+}
+
+body {
+    background: #121212;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-card {
+    max-width: 600px;
+    width: 100%;
+    border-radius: 20px;
+    padding: 30px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.auth-header .icon {
+    font-size: 40px;
+}
+
+.btn-primary {
+    border-radius: 10px;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+
+.registro-dark {
+    max-width: 650px;
+    background: #1e1e1e;
+    border: none;
+}
+
+.form-control::placeholder {
+    color: #aaa;
 }
