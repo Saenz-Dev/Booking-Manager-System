@@ -1,7 +1,7 @@
 # Pasos para colaborar 
 1. Clonar repositorio
 ```bash
-git clone https://github.com/usuario/repositorio.git
+git clone [https://github.com/usuario/repositorio.git](https://github.com/Saenz-Dev/Booking-Manager-System.git)
 ```
 2. Crear una rama
 ```bash
@@ -28,6 +28,28 @@ git push origin mi-rama
 - Revisar cambios
 - Aprobar o pedir ajustes
 - Hacer merge a main
+
+# Para guardar cambios localmente (en tu computador)
+
+```bash
+git add .
+git commit -m "Mensaje" -a
+```
+
+# Para bajar cambios de repositorio remoto (en Github)
+
+```bash
+(Te cambias a tu rama y ejecutas lo siguiente)
+git pull 
+```
+
+# Para enviar cambios a repositorio remoto (en Github)
+
+```bash
+git add .
+git commit -m "Descripción clara de los cambios"
+git push origin nombre-rama
+```
 
 # Comandos para Angular
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.0.4.
