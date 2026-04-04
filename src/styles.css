@@ -14,12 +14,7 @@ textarea {
 }
 
 body {
-    background: #121212;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0;
 }
 
 .auth-card {
