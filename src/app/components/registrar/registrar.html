@@ -114,7 +114,7 @@
 
     <div class="row">
         <div class="col-md-6 mb-3">
-            <label class="form-label text-light">Contraseña</label>
+            <label class="form-label text-light">Contraseña *</label>
             <input type="password" class="form-control bg-dark text-light border-secondary" formControlName="password">
             <div *ngIf="registroForm.get('password')?.invalid && registroForm.get('password')?.touched">
                 <small style="color: red;" *ngIf="registroForm.get('password')?.hasError('required')">Campo
@@ -125,7 +125,7 @@
         </div>
 
         <div class="col-md-6 mb-3">
-            <label class="form-label text-light">Confirmar contraseña</label>
+            <label class="form-label text-light">Confirmar contraseña *</label>
             <input type="password" class="form-control bg-dark text-light border-secondary"
                 formControlName="confirmPassword">
             <div *ngIf="registroForm.get('confirmPassword')?.invalid && registroForm.get('confirmPassword')?.touched">
@@ -143,11 +143,17 @@
         Las contraseñas no coinciden
     </div> -->
 
-    <button [disabled]="registroForm.invalid || registroForm.pending" type="submit" class="btn btn-primary w-100">
+    <button [disabled]="registroForm.invalid || registroForm.pending" type="submit" class="btn btn-primary w-100 mt-3">
         Registrarse
     </button>
+
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <p class="text-secondary mt-3">¿Ya tienes una cuenta?<a [routerLink]="['/login']"
+                    class="btn btn-link text-primary">Iniciar sesión</a></p>
+        </div>
+    </div>
     <!-- <button [disabled]="registroForm.invalid || registroForm.errors?.['noSonIguales'] || registroForm.errors?.['mayorDe18'] || registroForm.errors?.['required'] || registroForm.errors?.['maxlength'] || registroForm.errors?.['minlength'] || registroForm.errors?.['pattern'] " type="submit" class="btn btn-primary w-100">
         Registrarse
     </button> -->
-
 </form>

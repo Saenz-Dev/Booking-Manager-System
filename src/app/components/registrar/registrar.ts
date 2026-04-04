@@ -3,17 +3,18 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
+import { Route, Router, ActivatedRoute, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-registrar',
-  imports: [ReactiveFormsModule, NgIf],
+  imports: [ReactiveFormsModule, NgIf, RouterLink],
   templateUrl: './registrar.html',
 })
 export class Registrar {
 
   registroForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute) {
     this.registroForm = this.fb.group({
       nombres: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
       apellidos: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
@@ -72,6 +73,7 @@ export class Registrar {
     }
 
     console.log(this.registroForm.value);
+    this.router.navigate(['/login']);
   }
 
   // validarMatchPasswords(control: AbstractControl): ValidationErrors | null {
