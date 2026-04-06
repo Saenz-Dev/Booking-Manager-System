@@ -14,7 +14,7 @@ import { NotificacionesComponent } from "../notificaciones/notificaciones";
   imports: [FormsModule, CommonModule, RouterLink, NotificacionesComponent],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  providers: [NotificacionesService]
+  providers: [NotificacionesService, LoginService]
 })
 export class Login implements OnInit {
 
