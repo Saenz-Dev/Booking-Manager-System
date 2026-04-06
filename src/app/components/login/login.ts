@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 
 import { NotificacionesService } from '../../services/notificaciones.service';
+import { LoginService } from '../../services/login.service';
 import { NotificacionesComponent } from "../notificaciones/notificaciones";
 
 @Component({
@@ -24,7 +25,8 @@ export class Login implements OnInit {
 
   constructor(
     private router: Router,
-    private _notificacionesService: NotificacionesService
+    private _notificacionesService: NotificacionesService,
+    private _loginService: LoginService
   ) { }
 
   ngOnInit(): void {
@@ -45,12 +47,23 @@ export class Login implements OnInit {
       return;
     }
 
-    if (this.email === "admin@admin.com" && this.password === "1234") {
-      this.error = "";
-      this.router.navigate(['/inicio']);
-    } else {
-      this.error = "Credenciales incorrectas";
-      this._notificacionesService.error(this.error, 'Error');
-    }
+    this._loginService.login(this.email, this.password).subscribe((result: any) => {
+      if (result.code === 200) {
+        this.error = "";
+        this._notificacionesService.success('Bienvenido', 'Éxito');
+        setTimeout(() => {
+          this.router.navigate(['/inicio']);
+        }, 2500);
+        return;
+      }
+
+      this.error = result.message;
+      this._notificacionesService.error(result.data, 'Error');
+    },
+      error => {
+        console.log('Error en la solicitud de login:', error.error.data);
+        this.error = 'Error al conectar con el servidor';
+        this._notificacionesService.error(error.error.data, 'Error');
+      });
   }
 }

@@ -97,32 +97,6 @@ export class Registrar {
     };
   }
 
-  //Metodo para validar que el correo no exista en la base de datos
-  // validarExistenciaCorreo(): AsyncValidatorFn {
-  //   return (control: AbstractControl) => {
-  //     if (!control.value) return of(null);
-
-  //     const correoIngresado = String(control.value).trim().toLowerCase();
-
-  //     return timer(300).pipe(
-  //       switchMap(() => this._cuentasService.getCuentas()),
-  //       map((response: any) => {
-  //         const cuentas: Cuenta[] = response?.data;
-  //         // const existe = cuentas.some(c =>
-  //         //   String(c.correo).trim().toLowerCase() === correoIngresado
-  //         // );
-  //         for (let cuenta of cuentas) {
-  //           if (cuenta.correo === correoIngresado.trim().toLowerCase()) {
-  //             return { correoExistente: true };
-  //           }
-  //         }
-  //         return null;
-  //       }),
-  //       catchError(() => of(null))
-  //     );
-  //   };
-  // }
-
   validarExistenciaCorreo(): AsyncValidatorFn {
     return (control: AbstractControl) => {
       if (!control.value) return of(null);

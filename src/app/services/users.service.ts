@@ -5,7 +5,9 @@ import { map } from 'rxjs';
 import { Usuario } from "../modelo/usuario";
 import { GLOBAL } from "./global";
 
-@Injectable()
+@Injectable({
+    providedIn: 'root'
+})
 export class UserService {
     public url: string;
     public filesUpload: any;
