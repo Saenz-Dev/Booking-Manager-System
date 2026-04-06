@@ -51,6 +51,9 @@ export class Login implements OnInit {
       if (result.code === 200) {
         this.error = "";
         this._notificacionesService.success('Bienvenido', 'Éxito');
+        localStorage.setItem('cuenta',result.data.correo );
+        localStorage.setItem('id_usuario', result.data.id_usuario);
+        localStorage.setItem('token', result.data.token);
         setTimeout(() => {
           this.router.navigate(['/inicio']);
         }, 2500);
