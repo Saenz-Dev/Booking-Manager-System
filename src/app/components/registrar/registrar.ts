@@ -1,39 +1,75 @@
 import { Component } from '@angular/core';
 
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AsyncValidatorFn } from '@angular/forms';
 import { NgIf } from '@angular/common';
 import { ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
 import { Route, Router, ActivatedRoute, RouterLink } from '@angular/router';
 
+import { NotificacionesService } from '../../services/notificaciones.service';
+import { UserService } from '../../services/users.service';
+import { CuentasService } from '../../services/cuentas.service';
+import { Usuario } from '../../modelo/usuario';
+import { Cuenta } from '../../modelo/cuenta';
+import { catchError, map, of, switchMap, timer } from 'rxjs';
+import { NotificacionesComponent } from "../notificaciones/notificaciones";
+
 @Component({
   selector: 'app-registrar',
-  imports: [ReactiveFormsModule, NgIf, RouterLink],
+  imports: [ReactiveFormsModule, NgIf, RouterLink, NotificacionesComponent],
   templateUrl: './registrar.html',
+  providers: [UserService, CuentasService, NotificacionesService]
 })
 export class Registrar {
 
   registroForm: FormGroup;
+  usuario: Usuario;
 
-  constructor(private fb: FormBuilder, private router: Router, private route: ActivatedRoute) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private _userService: UserService,
+    private _cuentasService: CuentasService,
+    private _notificacionesService: NotificacionesService
+  ) {
     this.registroForm = this.fb.group({
       nombres: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
       apellidos: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
-      tipoDocumento: ['', Validators.required],
-      documento: ['', [Validators.required, Validators.pattern(/^[0-9]{6,12}$/)]],
-      fechaNacimiento: ['', [Validators.required, this.mayorDe18Anios()]],
+      tipo_documento: ['', Validators.required],
+      numero_documento: ['', [Validators.required, Validators.pattern(/^[0-9]{6,12}$/)]],
+      fecha_nacimiento: ['', [Validators.required, this.mayorDe18Anios()]],
       ciudad: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/), Validators.minLength(2)]],
-      email: ['', [Validators.required, Validators.email]],
+      correo: ['', [Validators.required, Validators.email], [this.validarExistenciaCorreo()]],
       telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-      password: ['', [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9]).{6,}$/)]],
+      contrasena: ['', [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9]).{6,}$/)]],
       confirmPassword: ['', Validators.required]
     }, {
       validators: this.passwordsIguales
     });
+    this.usuario = new Usuario(0, '', '', '', '', 0, '', new Date(), 1, 2, new Cuenta(0, '', '', 0));
+  }
+
+  getBodyUsuario() {
+    const form = this.registroForm.value;
+
+    this.usuario.nombres = form.nombres;
+    this.usuario.apellidos = form.apellidos;
+    this.usuario.tipo_documento = form.tipo_documento;
+    this.usuario.numero_documento = form.numero_documento;
+    this.usuario.fecha_nacimiento = new Date(form.fecha_nacimiento);
+    this.usuario.ciudad = form.ciudad;
+    this.usuario.telefono = form.telefono;
+    this.usuario.cuenta.correo = form.correo;
+    this.usuario.cuenta.contrasena = form.contrasena;
+    this.usuario.estado = 1;
+    this.usuario.id_rol = 2;
+    return this.usuario;
   }
 
   ngOnInit() {
-    this.registroForm.get('fechaNacimiento')?.valueChanges.subscribe(() => {
-      this.registroForm.get('fechaNacimiento')?.updateValueAndValidity();
+
+    this.registroForm.get('fecha_nacimiento')?.valueChanges.subscribe(() => {
+      this.registroForm.get('fecha_nacimiento')?.updateValueAndValidity();
     });
   }
 
@@ -60,21 +96,94 @@ export class Registrar {
     };
   }
 
+  //Metodo para validar que el correo no exista en la base de datos
+  validarExistenciaCorreo(): AsyncValidatorFn {
+    return (control: AbstractControl) => {
+      if (!control.value) return of(null);
+
+      const correoIngresado = String(control.value).trim().toLowerCase();
+
+      return timer(300).pipe(
+        switchMap(() => this._cuentasService.getCuentas()),
+        map((response: any) => {
+          const cuentas: Cuenta[] = response?.data;
+          // const existe = cuentas.some(c =>
+          //   String(c.correo).trim().toLowerCase() === correoIngresado
+          // );
+          for (let cuenta of cuentas) {
+            if (cuenta.correo === correoIngresado.trim().toLowerCase()) {
+              return { correoExistente: true };
+            }
+          }
+          return null;
+        }),
+        catchError(() => of(null))
+      );
+    };
+  }
+
   passwordsIguales(group: FormGroup) {
-    const pass = group.get('password')?.value;
+    const pass = group.get('contrasena')?.value;
     const confirm = group.get('confirmPassword')?.value;
     return pass === confirm ? null : { noSonIguales: true };
   }
 
   onSubmit() {
     if (this.registroForm.invalid) {
-      this.registroForm.markAllAsTouched();
       return;
     }
+    const bodyUsuario = this.getBodyUsuario();
 
-    console.log(this.registroForm.value);
-    this.router.navigate(['/login']);
+    this.addPerson();
+    this.registrarCuenta(Number(this.getBodyUsuario().numero_documento));
+    this._notificacionesService.success('Usuario creado correctamente', 'Éxito');
+
+    setTimeout(() => {
+      this.router.navigate(['/login']);
+    }, 3000);
   }
+
+  addPerson() {
+    this._userService.addPerson(this.getBodyUsuario()).subscribe(
+      (response: any) => {
+        if (response.code != 200 && response.code != 201) {
+          return;
+        }
+      },
+      error => {
+        console.error(error);
+        this._notificacionesService.error('Error al registrar el usuario', 'Error');
+      }
+    )
+  }
+
+  addCuenta(id: number, cuenta: Cuenta) {
+    this._cuentasService.addCuenta(id, cuenta).subscribe(
+      (response: any) => {
+        if (response.code != 200 && response.code != 201) {
+          this._notificacionesService.error('Error al registrar la cuenta', 'Error');
+          return;
+        }
+        this._notificacionesService.success('Cuenta registrada correctamente', 'Éxito');
+      },
+      error => {
+        console.error(error);
+        this._notificacionesService.error('Error al registrar la cuenta', 'Error');
+      }
+    )
+  }
+
+  registrarCuenta(numero_identificacion: number) {
+    this._userService.getUsuario(numero_identificacion).subscribe(
+      (response: any) => {
+        if (response.code == 200) {
+          this.addCuenta(response.data[0].id_usuario, this.usuario.cuenta);
+          return;
+        }
+      }
+    );
+  }
+
 
   // validarMatchPasswords(control: AbstractControl): ValidationErrors | null {
   //   const password = control.get('password')?.value;
