@@ -1,0 +1,9 @@
+<div class="noti-container">
+  <div class="noti-item" *ngFor="let n of (noti.items$ | async)" [ngClass]="'noti-' + n.tipo">
+    <div class="noti-header">
+      <strong>{{ n.titulo || 'Notificación' }}</strong>
+      <button type="button" (click)="noti.cerrar(n.id)">×</button>
+    </div>
+    <div>{{ n.mensaje }}</div>
+  </div>
+</div>

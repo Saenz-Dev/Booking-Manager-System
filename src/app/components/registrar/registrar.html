@@ -39,39 +39,38 @@
 
     <div class="mb-3">
         <label class="form-label text-light">Tipo de documento *</label>
-        <select class="form-select bg-dark text-light border-secondary" formControlName="tipoDocumento">
+        <select class="form-select bg-dark text-light border-secondary" formControlName="tipo_documento">
             <option value="">Seleccione</option>
-            <option>Cédula de ciudadanía</option>
-            <option>Tarjeta de identidad</option>
-            <option>Pasaporte</option>
-            <option>Cédula extranjera</option>
+            <option>CC</option>
+            <option>TI</option>
+            <option>CE</option>
         </select>
     </div>
 
     <div class="mb-3">
         <label class="form-label text-light">Número de documento *</label>
-        <input type="number" class="form-control bg-dark text-light border-secondary" formControlName="documento">
-        <div *ngIf="registroForm.get('documento')?.invalid && registroForm.get('documento')?.touched">
-            <small style="color: red;" *ngIf="registroForm.get('documento')?.hasError('required')">Campo
+        <input type="number" class="form-control bg-dark text-light border-secondary" formControlName="numero_documento">
+        <div *ngIf="registroForm.get('numero_documento')?.invalid && registroForm.get('numero_documento')?.touched">
+            <small style="color: red;" *ngIf="registroForm.get('numero_documento')?.hasError('required')">Campo
                 requerido</small>
-            <small style="color: red;" *ngIf="registroForm.get('documento')?.hasError('pattern')">Mínimo 6 y máximo 12
+            <small style="color: red;" *ngIf="registroForm.get('numero_documento')?.hasError('pattern')">Mínimo 6 y máximo 12
                 caracteres</small>
         </div>
     </div>
     <div class="mb-3">
         <label class="form-label text-light">Fecha de nacimiento *</label>
-        <input type="date" class="form-control bg-dark text-light border-secondary" formControlName="fechaNacimiento">
+        <input type="date" class="form-control bg-dark text-light border-secondary" formControlName="fecha_nacimiento">
 
         <div style="color: red;"
-            *ngIf="registroForm.get('fechaNacimiento')?.invalid && registroForm.get('fechaNacimiento')?.touched">
+            *ngIf="registroForm.get('fecha_nacimiento')?.invalid && registroForm.get('fecha_nacimiento')?.touched">
 
-            <div style="color: red;" *ngIf="registroForm.get('fechaNacimiento')?.errors?.['required']">
+            <div style="color: red;" *ngIf="registroForm.get('fecha_nacimiento')?.errors?.['required']">
                 La fecha de nacimiento es obligatoria.
             </div>
 
-            <div style="color: red;" *ngIf="registroForm.get('fechaNacimiento')?.hasError('mayorDe18')">
+            <div style="color: red;" *ngIf="registroForm.get('fecha_nacimiento')?.hasError('mayorDe18')">
                 La edada requerida es de 18 años, tiene:
-                {{ registroForm.get('fechaNacimiento')?.errors?.['mayorDe18']?.valor }} años.
+                {{ registroForm.get('fecha_nacimiento')?.errors?.['mayorDe18']?.valor }} años.
             </div>
 
         </div>
@@ -92,12 +91,13 @@
 
     <div class="mb-3">
         <label class="form-label text-light">Correo electrónico *</label>
-        <input type="email" class="form-control bg-dark text-light border-secondary" formControlName="email">
-        <div *ngIf="registroForm.get('email')?.invalid && registroForm.get('email')?.touched">
-            <small style="color: red;" *ngIf="registroForm.get('email')?.hasError('required')">Campo
+        <input type="email" class="form-control bg-dark text-light border-secondary" formControlName="correo">
+        <div *ngIf="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
+            <small style="color: red;" *ngIf="registroForm.get('correo')?.hasError('required')">Campo
                 requerido</small>
-            <small style="color: red;" *ngIf="registroForm.get('email')?.hasError('email')">Correo electrónico
+            <small style="color: red;" *ngIf="registroForm.get('correo')?.hasError('email')">Correo electrónico
                 inválido</small>
+            <small style="color: red;" *ngIf="registroForm.get('correo')?.hasError('correoExistente')">El correo electrónico ya está registrado</small>
         </div>
     </div>
 
@@ -115,11 +115,11 @@
     <div class="row">
         <div class="col-md-6 mb-3">
             <label class="form-label text-light">Contraseña *</label>
-            <input type="password" class="form-control bg-dark text-light border-secondary" formControlName="password">
-            <div *ngIf="registroForm.get('password')?.invalid && registroForm.get('password')?.touched">
-                <small style="color: red;" *ngIf="registroForm.get('password')?.hasError('required')">Campo
+            <input type="password" class="form-control bg-dark text-light border-secondary" formControlName="contrasena">
+            <div *ngIf="registroForm.get('contrasena')?.invalid && registroForm.get('contrasena')?.touched">
+                <small style="color: red;" *ngIf="registroForm.get('contrasena')?.hasError('required')">Campo
                     requerido</small>
-                <small style="color: red;" *ngIf="registroForm.get('password')?.hasError('pattern')">Mínimo 6
+                <small style="color: red;" *ngIf="registroForm.get('contrasena')?.hasError('pattern')">Mínimo 6
                     caracteres, una mayúscula y un número</small>
             </div>
         </div>
@@ -143,9 +143,16 @@
         Las contraseñas no coinciden
     </div> -->
 
-    <button [disabled]="registroForm.invalid || registroForm.pending" type="submit" class="btn btn-primary w-100 mt-3">
+    <!-- <button  type="submit" class="btn btn-primary w-100 mt-3">
+        Registrarse
+    </button> -->
+
+    <button [disabled]="registroForm.invalid || registroForm.errors?.['noSonIguales'] || registroForm.errors?.['mayorDe18'] || registroForm.errors?.['required'] || registroForm.errors?.['maxlength'] || registroForm.errors?.['minlength'] || registroForm.errors?.['pattern'] " type="submit" class="btn btn-primary w-100">
         Registrarse
     </button>
+    <!-- <button [disabled]="registroForm.invalid" type="submit" class="btn btn-primary w-100">
+        Registrarse
+    </button> -->
 
     <div class="row">
         <div class="col-md-12 text-center">
@@ -153,7 +160,5 @@
                     class="btn btn-link text-primary">Iniciar sesión</a></p>
         </div>
     </div>
-    <!-- <button [disabled]="registroForm.invalid || registroForm.errors?.['noSonIguales'] || registroForm.errors?.['mayorDe18'] || registroForm.errors?.['required'] || registroForm.errors?.['maxlength'] || registroForm.errors?.['minlength'] || registroForm.errors?.['pattern'] " type="submit" class="btn btn-primary w-100">
-        Registrarse
-    </button> -->
 </form>
+<app-notificaciones></app-notificaciones>
