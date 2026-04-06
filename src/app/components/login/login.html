@@ -1,8 +1,7 @@
-<div class="login-wrapper">
+<div class="login-wrapper" [ngClass]="{'full-bg': isFullBg}">
 
   <!-- LADO IZQUIERDO LOGIN -->
   <div class="login-left">
-
     <div class="login-card">
 
       <h2>Iniciar sesión</h2>
@@ -50,19 +49,16 @@
       </form>
 
     </div>
-
   </div>
-
 
   <!-- LADO DERECHO IMAGEN -->
   <div class="login-right">
-
     <div class="overlay">
       <h1>Booking Manager</h1>
       <p>Gestiona reservas de forma simple y profesional</p>
     </div>
-
   </div>
 
 </div>
+
 <app-notificaciones></app-notificaciones>
