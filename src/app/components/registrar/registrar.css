@@ -1,0 +1,49 @@
+/* Animación entrada */
+.animate-fade {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Inputs modernos */
+.custom-input {
+    background-color: #1e1e2f;
+    color: #fff;
+    border: 1px solid #444;
+    transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 10px rgba(13, 110, 253, 0.5);
+    background-color: #1e1e2f;
+    color: #fff;
+}
+
+/* Botón animado */
+.btn-anim {
+    transition: all 0.3s ease;
+}
+
+.btn-anim:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(13, 110, 253, 0.5);
+}
+
+
+.form-registrar {
+    opacity: 0.97;
+    background: rgba(33, 37, 41, 0.85);
+    /* semi transparente */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}

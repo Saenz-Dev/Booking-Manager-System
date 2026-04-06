@@ -1,164 +1,153 @@
-<form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="card p-4 shadow-lg rounded-4 mx-auto my-5 bg-dark form-registrar">
+<div class="container-center">
+    <form [formGroup]="registroForm" (ngSubmit)="onSubmit()"
+        class="card p-3 p-md-4 shadow-lg rounded-4 mx-auto my-4 bg-dark form-registrar animate-fade"
+        style="max-width: 700px;">
 
-    <div class="text-center mb-4">
-        <h2 class="text-light">Crear cuenta</h2>
-        <p class="text-secondary">Sistema de Gestión de Reservas</p>
-    </div>
+        <div class="text-center mb-4">
+            <h2 class="text-light fw-bold">Crear cuenta</h2>
+            <p class="text-secondary small">Sistema de Gestión de Reservas</p>
+        </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label text-light">Nombres *</label>
-            <input type="text" class="form-control bg-dark text-light border-secondary" formControlName="nombres">
-            <div *ngIf="registroForm.get('nombres')?.touched && registroForm.get('nombres')?.invalid">
-                <small style="color: red;" *ngIf="registroForm.get('nombres')?.hasError('required')">Campo
-                    requerido</small>
-                <small style="color: red;" *ngIf="registroForm.get('nombres')?.hasError('minlength')">Mínimo 2
-                    caracteres</small>
-                <small style="color: red;" *ngIf="registroForm.get('nombres')?.hasError('maxlength')">Máximo 50
-                    caracteres</small>
-                <small style="color: red;" *ngIf="registroForm.get('nombres')?.hasError('pattern')">Solo se
-                    permiten letras</small>
+        <!-- Nombres y Apellidos -->
+        <div class="row g-2">
+            <div class="col-12 col-md-6">
+                <label class="form-label text-light">Nombres *</label>
+                <input type="text" class="form-control custom-input" formControlName="nombres">
+
+                <div *ngIf="registroForm.get('nombres')?.touched && registroForm.get('nombres')?.invalid"
+                    class="text-danger small">
+                    <div *ngIf="registroForm.get('nombres')?.hasError('required')">Campo requerido</div>
+                    <div *ngIf="registroForm.get('nombres')?.hasError('minlength')">Mínimo 2 caracteres</div>
+                    <div *ngIf="registroForm.get('nombres')?.hasError('maxlength')">Máximo 50 caracteres</div>
+                    <div *ngIf="registroForm.get('nombres')?.hasError('pattern')">Solo letras</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label text-light">Apellidos *</label>
+                <input type="text" class="form-control custom-input" formControlName="apellidos">
+
+                <div *ngIf="registroForm.get('apellidos')?.invalid && registroForm.get('apellidos')?.touched"
+                    class="text-danger small">
+                    <div *ngIf="registroForm.get('apellidos')?.hasError('required')">Campo requerido</div>
+                    <div *ngIf="registroForm.get('apellidos')?.hasError('minlength')">Mínimo 2 caracteres</div>
+                    <div *ngIf="registroForm.get('apellidos')?.hasError('maxlength')">Máximo 50 caracteres</div>
+                    <div *ngIf="registroForm.get('apellidos')?.hasError('pattern')">Solo letras</div>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label text-light">Apellidos *</label>
-            <input type="text" class="form-control bg-dark text-light border-secondary" formControlName="apellidos">
-            <div *ngIf="registroForm.get('apellidos')?.invalid && registroForm.get('apellidos')?.touched">
-                <small style="color: red;" *ngIf="registroForm.get('apellidos')?.hasError('required')">Campo
-                    requerido</small>
-                <small style="color: red;" *ngIf="registroForm.get('apellidos')?.hasError('minlength')">Mínimo 2
-                    caracteres</small>
-                <small style="color: red;" *ngIf="registroForm.get('apellidos')?.hasError('maxlength')">Máximo 50
-                    caracteres</small>
-                <small style="color: red;" *ngIf="registroForm.get('apellidos')?.hasError('pattern')">Solo se
-                    permiten letras</small>
-            </div>
+        <!-- Tipo documento -->
+        <div class="mt-3">
+            <label class="form-label text-light">Tipo de documento *</label>
+            <select class="form-select custom-input" formControlName="tipo_documento">
+                <option value="">Seleccione</option>
+                <option>CC</option>
+                <option>CE</option>
+            </select>
         </div>
-    </div>
 
-    <div class="mb-3">
-        <label class="form-label text-light">Tipo de documento *</label>
-        <select class="form-select bg-dark text-light border-secondary" formControlName="tipo_documento">
-            <option value="">Seleccione</option>
-            <option>CC</option>
-            <option>TI</option>
-            <option>CE</option>
-        </select>
-    </div>
+        <!-- Número documento -->
+        <div class="mt-3">
+            <label class="form-label text-light">Número de documento *</label>
+            <input type="number" class="form-control custom-input" formControlName="numero_documento">
 
-    <div class="mb-3">
-        <label class="form-label text-light">Número de documento *</label>
-        <input type="number" class="form-control bg-dark text-light border-secondary" formControlName="numero_documento">
-        <div *ngIf="registroForm.get('numero_documento')?.invalid && registroForm.get('numero_documento')?.touched">
-            <small style="color: red;" *ngIf="registroForm.get('numero_documento')?.hasError('required')">Campo
-                requerido</small>
-            <small style="color: red;" *ngIf="registroForm.get('numero_documento')?.hasError('pattern')">Mínimo 6 y máximo 12
-                caracteres</small>
-        </div>
-    </div>
-    <div class="mb-3">
-        <label class="form-label text-light">Fecha de nacimiento *</label>
-        <input type="date" class="form-control bg-dark text-light border-secondary" formControlName="fecha_nacimiento">
-
-        <div style="color: red;"
-            *ngIf="registroForm.get('fecha_nacimiento')?.invalid && registroForm.get('fecha_nacimiento')?.touched">
-
-            <div style="color: red;" *ngIf="registroForm.get('fecha_nacimiento')?.errors?.['required']">
-                La fecha de nacimiento es obligatoria.
-            </div>
-
-            <div style="color: red;" *ngIf="registroForm.get('fecha_nacimiento')?.hasError('mayorDe18')">
-                La edada requerida es de 18 años, tiene:
-                {{ registroForm.get('fecha_nacimiento')?.errors?.['mayorDe18']?.valor }} años.
-            </div>
-
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label text-light">Ciudad *</label>
-        <input type="text" class="form-control bg-dark text-light border-secondary" formControlName="ciudad">
-        <div *ngIf="registroForm.get('ciudad')?.invalid && registroForm.get('ciudad')?.touched">
-            <small style="color: red;" *ngIf="registroForm.get('ciudad')?.hasError('required')">Campo
-                requerido</small>
-            <small style="color: red;" *ngIf="registroForm.get('ciudad')?.hasError('minlength')">Mínimo 2
-                caracteres</small>
-            <small style="color: red;" *ngIf="registroForm.get('ciudad')?.hasError('pattern')">Solo se
-                permiten letras</small>
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label text-light">Correo electrónico *</label>
-        <input type="email" class="form-control bg-dark text-light border-secondary" formControlName="correo">
-        <div *ngIf="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched">
-            <small style="color: red;" *ngIf="registroForm.get('correo')?.hasError('required')">Campo
-                requerido</small>
-            <small style="color: red;" *ngIf="registroForm.get('correo')?.hasError('email')">Correo electrónico
-                inválido</small>
-            <small style="color: red;" *ngIf="registroForm.get('correo')?.hasError('correoExistente')">El correo electrónico ya está registrado</small>
-        </div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label text-light">Teléfono *</label>
-        <input type="number" class="form-control bg-dark text-light border-secondary" formControlName="telefono">
-        <div *ngIf="registroForm.get('telefono')?.invalid && registroForm.get('telefono')?.touched">
-            <small style="color: red;" *ngIf="registroForm.get('telefono')?.hasError('required')">Campo
-                requerido</small>
-            <small style="color: red;" *ngIf="registroForm.get('telefono')?.hasError('pattern')">Debe tener 10
-                dígitos numéricos</small>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <label class="form-label text-light">Contraseña *</label>
-            <input type="password" class="form-control bg-dark text-light border-secondary" formControlName="contrasena">
-            <div *ngIf="registroForm.get('contrasena')?.invalid && registroForm.get('contrasena')?.touched">
-                <small style="color: red;" *ngIf="registroForm.get('contrasena')?.hasError('required')">Campo
-                    requerido</small>
-                <small style="color: red;" *ngIf="registroForm.get('contrasena')?.hasError('pattern')">Mínimo 6
-                    caracteres, una mayúscula y un número</small>
+            <div *ngIf="registroForm.get('numero_documento')?.invalid && registroForm.get('numero_documento')?.touched"
+                class="text-danger small">
+                <div *ngIf="registroForm.get('numero_documento')?.hasError('required')">Campo requerido</div>
+                <div *ngIf="registroForm.get('numero_documento')?.hasError('pattern')">Entre 6 y 12 dígitos</div>
             </div>
         </div>
 
-        <div class="col-md-6 mb-3">
-            <label class="form-label text-light">Confirmar contraseña *</label>
-            <input type="password" class="form-control bg-dark text-light border-secondary"
-                formControlName="confirmPassword">
-            <div *ngIf="registroForm.get('confirmPassword')?.invalid && registroForm.get('confirmPassword')?.touched">
-                <small style="color: red;" *ngIf="registroForm.get('confirmPassword')?.hasError('required')">Campo
-                    requerido</small>
-            </div>
-            <div *ngIf="registroForm.errors?.['noSonIguales'] && registroForm.get('confirmPassword')?.touched">
-                <small style="color: red;">Las contraseñas no coinciden</small>
+        <!-- Fecha -->
+        <div class="mt-3">
+            <label class="form-label text-light">Fecha de nacimiento *</label>
+            <input type="date" class="form-control" formControlName="fecha_nacimiento">
+
+            <div *ngIf="registroForm.get('fecha_nacimiento')?.invalid && registroForm.get('fecha_nacimiento')?.touched"
+                class="text-danger small">
+                <div *ngIf="registroForm.get('fecha_nacimiento')?.hasError('required')">
+                    La fecha es obligatoria
+                </div>
+                <div *ngIf="registroForm.get('fecha_nacimiento')?.hasError('mayorDe18')">
+                    Debes ser mayor de edad
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Error contraseñas -->
-    <!-- <div *ngIf="registroForm.errors?.noSonIguales && registroForm.touched" class="alert alert-danger">
-        Las contraseñas no coinciden
-    </div> -->
+        <!-- Ciudad -->
+        <div class="mt-3">
+            <label class="form-label text-light">Ciudad *</label>
+            <input type="text" class="form-control custom-input" formControlName="ciudad">
 
-    <!-- <button  type="submit" class="btn btn-primary w-100 mt-3">
-        Registrarse
-    </button> -->
-
-    <button [disabled]="registroForm.invalid || registroForm.errors?.['noSonIguales'] || registroForm.errors?.['mayorDe18'] || registroForm.errors?.['required'] || registroForm.errors?.['maxlength'] || registroForm.errors?.['minlength'] || registroForm.errors?.['pattern'] " type="submit" class="btn btn-primary w-100">
-        Registrarse
-    </button>
-    <!-- <button [disabled]="registroForm.invalid" type="submit" class="btn btn-primary w-100">
-        Registrarse
-    </button> -->
-
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <p class="text-secondary mt-3">¿Ya tienes una cuenta?<a [routerLink]="['/login']"
-                    class="btn btn-link text-primary">Iniciar sesión</a></p>
+            <div *ngIf="registroForm.get('ciudad')?.invalid && registroForm.get('ciudad')?.touched"
+                class="text-danger small">
+                <div *ngIf="registroForm.get('ciudad')?.hasError('required')">Campo requerido</div>
+                <div *ngIf="registroForm.get('ciudad')?.hasError('minlength')">Mínimo 2 caracteres</div>
+            </div>
         </div>
-    </div>
-</form>
-<app-notificaciones></app-notificaciones>
+
+        <!-- Correo -->
+        <div class="mt-3">
+            <label class="form-label text-light">Correo electrónico *</label>
+            <input type="email" class="form-control custom-input" formControlName="correo">
+
+            <div *ngIf="registroForm.get('correo')?.invalid && registroForm.get('correo')?.touched"
+                class="text-danger small">
+                <div *ngIf="registroForm.get('correo')?.hasError('required')">Campo requerido</div>
+                <div *ngIf="registroForm.get('correo')?.hasError('email')">Correo inválido</div>
+                <div *ngIf="registroForm.get('correo')?.hasError('correoExistente')">Ya está registrado</div>
+            </div>
+        </div>
+
+        <!-- Teléfono -->
+        <div class="mt-3">
+            <label class="form-label text-light">Teléfono *</label>
+            <input type="number" class="form-control custom-input" formControlName="telefono">
+
+            <div *ngIf="registroForm.get('telefono')?.invalid && registroForm.get('telefono')?.touched"
+                class="text-danger small">
+                <div *ngIf="registroForm.get('telefono')?.hasError('required')">Campo requerido</div>
+            </div>
+        </div>
+
+        <!-- Contraseñas -->
+        <div class="row g-2 mt-2 mb-4">
+            <div class="col-12 col-md-6">
+                <label class="form-label text-light">Contraseña *</label>
+                <input type="password" class="form-control custom-input" formControlName="contrasena">
+            </div>
+
+            <div class="col-12 col-md-6">
+                <label class="form-label text-light">Confirmar contraseña *</label>
+                <input type="password" class="form-control custom-input" formControlName="confirmPassword">
+            </div>
+        </div>
+
+        <!-- Errores -->
+        <div *ngIf="registroForm.get('contrasena')?.invalid && registroForm.get('contrasena')?.touched"
+            class="alert alert-danger py-2 mt-2 text-center">
+            Mínimo 6 caracteres, una mayúscula y un número
+        </div>
+
+        <div *ngIf="registroForm.hasError('noSonIguales') && registroForm.get('confirmPassword')?.touched"
+            class="alert alert-danger py-2 text-center">
+            Las contraseñas no coinciden
+        </div>
+
+        <!-- Botón -->
+        <button [disabled]="registroForm.invalid || registroForm.hasError('noSonIguales')" type="submit"
+            class="btn btn-primary w-100 mt-3">
+            Registrarse
+        </button>
+
+        <div class="text-center mt-3">
+            <p class="text-secondary small">
+                ¿Ya tienes una cuenta?
+                <a [routerLink]="['/login']" class="text-primary fw-bold">Iniciar sesión</a>
+            </p>
+        </div>
+    </form>
+
+    <app-notificaciones></app-notificaciones>
+</div>

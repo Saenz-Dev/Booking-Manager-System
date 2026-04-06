@@ -17,7 +17,8 @@ import { NotificacionesComponent } from "../notificaciones/notificaciones";
   selector: 'app-registrar',
   imports: [ReactiveFormsModule, NgIf, RouterLink, NotificacionesComponent],
   templateUrl: './registrar.html',
-  providers: [UserService, CuentasService, NotificacionesService]
+  providers: [UserService, CuentasService, NotificacionesService],
+  styleUrl: './registrar.css'
 })
 export class Registrar {
 
@@ -36,7 +37,7 @@ export class Registrar {
       nombres: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
       apellidos: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
       tipo_documento: ['', Validators.required],
-      numero_documento: ['', [Validators.required, Validators.pattern(/^[0-9]{6,12}$/)]],
+      numero_documento: ['', [Validators.required, Validators.pattern(/^[0-9]{6,12}$/)], [this.validarExistenciaNumeroIdentificacion()]],
       fecha_nacimiento: ['', [Validators.required, this.mayorDe18Anios()]],
       ciudad: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/), Validators.minLength(2)]],
       correo: ['', [Validators.required, Validators.email], [this.validarExistenciaCorreo()]],
@@ -97,6 +98,31 @@ export class Registrar {
   }
 
   //Metodo para validar que el correo no exista en la base de datos
+  // validarExistenciaCorreo(): AsyncValidatorFn {
+  //   return (control: AbstractControl) => {
+  //     if (!control.value) return of(null);
+
+  //     const correoIngresado = String(control.value).trim().toLowerCase();
+
+  //     return timer(300).pipe(
+  //       switchMap(() => this._cuentasService.getCuentas()),
+  //       map((response: any) => {
+  //         const cuentas: Cuenta[] = response?.data;
+  //         // const existe = cuentas.some(c =>
+  //         //   String(c.correo).trim().toLowerCase() === correoIngresado
+  //         // );
+  //         for (let cuenta of cuentas) {
+  //           if (cuenta.correo === correoIngresado.trim().toLowerCase()) {
+  //             return { correoExistente: true };
+  //           }
+  //         }
+  //         return null;
+  //       }),
+  //       catchError(() => of(null))
+  //     );
+  //   };
+  // }
+
   validarExistenciaCorreo(): AsyncValidatorFn {
     return (control: AbstractControl) => {
       if (!control.value) return of(null);
@@ -106,16 +132,39 @@ export class Registrar {
       return timer(300).pipe(
         switchMap(() => this._cuentasService.getCuentas()),
         map((response: any) => {
-          const cuentas: Cuenta[] = response?.data;
-          // const existe = cuentas.some(c =>
-          //   String(c.correo).trim().toLowerCase() === correoIngresado
-          // );
-          for (let cuenta of cuentas) {
-            if (cuenta.correo === correoIngresado.trim().toLowerCase()) {
-              return { correoExistente: true };
-            }
-          }
-          return null;
+          if (!response || !response.data) return null;
+
+          const cuentas: Cuenta[] = response.data;
+
+          const existe = cuentas.some(c =>
+            String(c.correo).trim().toLowerCase() === correoIngresado
+          );
+
+          return existe ? { correoExistente: true } : null;
+        }),
+        catchError(() => of(null))
+      );
+    };
+  }
+
+  validarExistenciaNumeroIdentificacion(): AsyncValidatorFn {
+    return (control: AbstractControl) => {
+      if (!control.value) return of(null);
+
+      const numero_documento = String(control.value).trim().toLowerCase();
+
+      return timer(300).pipe(
+        switchMap(() => this._userService.getUsuarios()),
+        map((response: any) => {
+          if (!response || !response.data) return null;
+
+          const usuarios: Usuario[] = response.data;
+
+          const existe = usuarios.some(c =>
+            String(c.numero_documento).trim().toLowerCase() === numero_documento
+          );
+
+          return existe ? { numero_documentoExistente: true } : null;
         }),
         catchError(() => of(null))
       );

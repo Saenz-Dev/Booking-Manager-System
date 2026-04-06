@@ -15,10 +15,11 @@ textarea {
 }
 
 body {
-    background: #121212;
-    background: linear-gradient(135deg, #f0f0f0, #b6b9b9);
+    background: url('assets/fondo.jpg') no-repeat center center fixed;
+    background-size: cover;
     min-height: 100vh;
 }
+
 
 .auth-card {
     max-width: 600px;
@@ -65,4 +66,18 @@ body {
 
 .noti-container {
     font-family: var(--font-professional);
+}
+
+/* Centrar container formulario */
+
+.container-center {
+    min-height: 100vh;
+    /* ocupa toda la pantalla */
+    display: flex;
+    justify-content: center;
+    /* centro horizontal */
+    align-items: center;
+    /* centro vertical */
+    padding: 20px;
+    /* evita que pegue en móvil */
 }
