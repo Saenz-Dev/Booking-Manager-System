@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel Administrador — Alojamientos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="panel_admin.css" />
+</head>
+<body>
+ 
+  <div *ngIf="accessDenied" class="access-denied">
+  <h2>Acceso Denegado</h2>
+  <p>No tienes permisos para acceder al panel administrador</p>
+</div>
+
+<div *ngIf="!accessDenied" class="admin-container">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <h2>Panel Admin</h2>
+
+    <button (click)="switchSection('dashboard')">Dashboard</button>
+    <button (click)="switchSection('accommodations')">Alojamientos</button>
+    <button>Reservas</button>
+    <button>Usuarios</button>
+    <button>Reportes</button>
+
+  </aside>
+
+  <!-- CONTENIDO -->
+
+  <main class="content">
+
+    <!-- DASHBOARD -->
+
+    <div *ngIf="selectedSection==='dashboard'">
+
+      <h1>Dashboard</h1>
+
+      <div class="stats">
+
+        <div class="card">
+          <h3>Total Alojamientos</h3>
+          <p>{{accommodations.length}}</p>
+        </div>
+
+        <div class="card">
+          <h3>Activos</h3>
+          <p>{{accommodations.filter(a=>a.status==='active').length}}</p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- GESTIÓN ALOJAMIENTOS -->
+
+    <div *ngIf="selectedSection==='accommodations'">
+
+      <h1>Gestión de Alojamientos</h1>
+
+      <button class="create-btn" (click)="openCreate()">
+        Crear alojamiento
+      </button>
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Ubicación</th>
+            <th>Precio</th>
+            <th>Capacidad</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let a of accommodations">
+
+            <td>{{a.name}}</td>
+            <td>{{a.location}}</td>
+            <td>{{a.price}}</td>
+            <td>{{a.capacity}}</td>
+            <td>{{a.status}}</td>
+
+            <td>
+
+              <button (click)="openEdit(a)">
+                Editar
+              </button>
+
+              <button class="delete"
+                (click)="confirmDelete(a.id)">
+                Eliminar
+              </button>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- MODAL FORM -->
+
+<div *ngIf="showForm" class="modal">
+
+  <div class="modal-box">
+
+    <h2 *ngIf="!editing">Crear alojamiento</h2>
+    <h2 *ngIf="editing">Editar alojamiento</h2>
+
+    <input placeholder="Nombre"
+      [(ngModel)]="form.name">
+
+    <input placeholder="Ubicación"
+      [(ngModel)]="form.location">
+
+    <input type="number"
+      placeholder="Precio"
+      [(ngModel)]="form.price">
+
+    <input type="number"
+      placeholder="Capacidad"
+      [(ngModel)]="form.capacity">
+
+    <textarea
+      placeholder="Descripción"
+      [(ngModel)]="form.description">
+    </textarea>
+
+    <select [(ngModel)]="form.status">
+      <option value="active">Activo</option>
+      <option value="inactive">Inactivo</option>
+    </select>
+
+    <div class="actions">
+
+      <button (click)="saveAccommodation()">
+        Guardar
+      </button>
+
+      <button (click)="cancelForm()">
+        Cancelar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- CONFIRMAR ELIMINAR -->
+
+<div *ngIf="deleteId!==null" class="modal">
+
+  <div class="modal-box">
+
+    <h3>Confirmar eliminación</h3>
+
+    <p>¿Deseas eliminar este alojamiento?</p>
+
+    <button (click)="deleteAccommodation()">
+      Eliminar
+    </button>
+
+    <button (click)="cancelDelete()">
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
