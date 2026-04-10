@@ -1,7 +1,7 @@
 <div id="app">
   <div class="hero">
     <div class="hero-badge">★ Sistema de Reservas</div>
-    <h1>Grand Palacio Hotel</h1>
+    <h1>Ranchos El Paraiso</h1>
     <p>Bienvenido a tu portal de reservas. Gestiona habitaciones, mesas y más desde un solo lugar.</p>
     <div class="user-pill" (click)="showTab('perfil')">
       <div class="avatar">CM</div>
@@ -219,13 +219,13 @@
           <span>Total a pagar</span>
           <span>$864.024</span>
         </div>
-        <div style="margin-top:1rem; display:flex; gap:8px;">
+        <div class="invoice-actions">
           <button class="btn-sm" (click)="showToast('PDF descargado')">Descargar PDF</button>
           <button class="btn-sm" (click)="showToast('Enviado a tu correo')">Enviar por correo</button>
         </div>
       </div>
 
-      <div class="invoice-box" style="margin-top:1rem;">
+      <div class="invoice-box spaced">
         <div class="invoice-header">
           <div>
             <h2>Factura #GP-2024-0061</h2>
@@ -243,7 +243,7 @@
           <span>Total a pagar</span>
           <span>$428.400</span>
         </div>
-        <div style="margin-top:1rem; display:flex; gap:8px;">
+        <div class="invoice-actions">
           <button class="btn-sm" (click)="showToast('PDF descargado')">Descargar PDF</button>
           <button class="btn-sm" (click)="showToast('Enviado a tu correo')">Enviar por correo</button>
         </div>
