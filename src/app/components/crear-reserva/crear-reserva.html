@@ -1,0 +1,117 @@
+<p class="section-title">¿Qué deseas reservar?</p>
+<div class="card-grid">
+  <div class="option-card card-room" id="opt-room" [class.selected]="selectedType === 'room'" (click)="selectType('room')">
+    <div class="card-icon">🛏</div>
+    <div class="selected-check">✓</div>
+    <h3>Habitación</h3>
+    <p>Suites, habitaciones dobles, sencillas y más. Estadías por noches.</p>
+  </div>
+  <div class="option-card card-table" id="opt-table" [class.selected]="selectedType === 'table'" (click)="selectType('table')">
+    <div class="card-icon">🍽</div>
+    <div class="selected-check">✓</div>
+    <h3>Mesa de restaurante</h3>
+    <p>Reserva tu mesa para el desayuno, almuerzo o cena en nuestro restaurante.</p>
+  </div>
+</div>
+
+<div id="form-room" *ngIf="selectedType === 'room'">
+  <div class="form-box">
+    <h3>Detalles de la habitación</h3>
+    <div class="form-row">
+      <div class="field">
+        <label>Tipo de habitaciones</label>
+        <select #roomTypeSelect (change)="onRoomTypeChange(roomTypeSelect.value, roomTypeSelect.options[roomTypeSelect.selectedIndex].text)">
+          <option *ngFor="let habitacion of habitaciones" [value]="getPrecioHabitacion(habitacion)">
+            {{ getNombreHabitacion(habitacion) }} - {{ formatMoney(getPrecioHabitacion(habitacion)) }}/noche
+          </option>
+          <option *ngIf="habitaciones.length === 0" [value]="roomRate">Habitación - {{ formatMoney(roomRate) }}/noche</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Número de huéspedes</label>
+        <select [value]="numeroHuespedes" (change)="onGuestCountChange($any($event.target).value)">
+          <option *ngFor="let numero of numerosHuespedes" [value]="numero">
+            {{ numero }} {{ numero === 1 ? 'huésped' : 'huéspedes' }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Check-in</label>
+        <input type="date" id="checkin" [value]="checkIn" #checkInInput (change)="onCheckInChange(checkInInput.value)" />
+      </div>
+      <div class="field">
+        <label>Check-out</label>
+        <input type="date" id="checkout" [value]="checkOut" #checkOutInput (change)="onCheckOutChange(checkOutInput.value)" />
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="field">
+        <label>Solicitudes especiales</label>
+        <input type="text" placeholder="Cama extra, vista al jardín, piso alto..." />
+      </div>
+    </div>
+  </div>
+  <div class="form-box" id="room-summary" *ngIf="roomSummaryVisible">
+    <h3>Resumen</h3>
+    <div class="summary-line"><span>{{ roomSummary.type }}</span><span>{{ roomSummary.rate }}</span></div>
+    <div class="summary-line"><span>{{ roomSummary.nights }}</span><span>{{ roomSummary.sub }}</span></div>
+    <div class="summary-line"><span>Impuestos (19%)</span><span>{{ roomSummary.tax }}</span></div>
+    <div class="summary-line"><span>Total</span><span>{{ roomSummary.total }}</span></div>
+  </div>
+  <button class="btn-primary" type="button" (click)="confirmReservation('habitación')">Confirmar reserva de habitación</button>
+</div>
+
+<div id="form-table" *ngIf="selectedType === 'table'">
+  <div class="form-box">
+    <h3>Detalles de la mesa</h3>
+    <div class="form-row">
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" />
+      </div>
+      <div class="field">
+        <label>Hora</label>
+        <select>
+          <option>07:00 - Desayuno</option>
+          <option>08:00 - Desayuno</option>
+          <option>12:00 - Almuerzo</option>
+          <option>13:00 - Almuerzo</option>
+          <option>19:00 - Cena</option>
+          <option>20:00 - Cena</option>
+          <option>20:30 - Cena</option>
+          <option>21:00 - Cena</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Número de personas</label>
+        <select>
+          <option>1 persona</option>
+          <option>2 personas</option>
+          <option>3 personas</option>
+          <option>4 personas</option>
+          <option>5-6 personas</option>
+          <option>7-10 personas</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Área</label>
+        <select>
+          <option>Salón principal</option>
+          <option>Terraza exterior</option>
+          <option>Sala privada</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row full">
+      <div class="field">
+        <label>Ocasión especial</label>
+        <input type="text" placeholder="Cumpleaños, aniversario, reunión de negocios..." />
+      </div>
+    </div>
+  </div>
+  <button class="btn-primary" type="button" (click)="confirmReservation('mesa de restaurante')">Confirmar reserva de mesa</button>
+</div>
