@@ -1,122 +1,237 @@
-.admin-container{
-display:flex;
-height:100vh;
-font-family:Arial;
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+body{
+font-family: 'Poppins', sans-serif;
 }
 
+.admin-layout{
+display:flex;
+min-height:100vh;
+background:#f4f6f9;
+transition:all 0.3s ease;
+}
+
+/* SIDEBAR */
+
 .sidebar{
-width:220px;
+width:240px;
 background:#1e293b;
 color:white;
 padding:20px;
-display:flex;
-flex-direction:column;
-gap:10px;
+transition:width 0.3s ease;
+overflow:hidden;
 }
 
-.sidebar button{
-background:none;
-border:none;
-color:white;
-padding:10px;
-text-align:left;
+.sidebar.collapsed{
+width:70px;
+}
+
+.logo{
+font-size:18px;
+margin-bottom:25px;
+font-weight:600;
+}
+
+.menu-item{
+padding:12px;
+border-radius:6px;
 cursor:pointer;
+margin-bottom:6px;
+transition:0.2s;
 }
 
-.sidebar button:hover{
+.menu-item:hover{
 background:#334155;
 }
 
-.content{
+.sidebar.collapsed .menu-item{
+font-size:0;
+}
+
+.sidebar.collapsed .menu-item::before{
+font-size:18px;
+}
+
+.toggle{
+background:none;
+border:none;
+color:white;
+font-size:22px;
+cursor:pointer;
+margin-bottom:20px;
+}
+
+/* MAIN */
+
+.main{
 flex:1;
 padding:30px;
-background:#f5f7fb;
+transition:margin-left 0.3s ease;
 }
 
-.stats{
+.header{
 display:flex;
-gap:20px;
+align-items:center;
+gap:15px;
+margin-bottom:30px;
 }
 
-.card{
-background:white;
-padding:20px;
-border-radius:8px;
-width:200px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-background:white;
-}
-
-th,td{
-padding:12px;
-border-bottom:1px solid #eee;
-}
-
-.create-btn{
-margin-top:15px;
-padding:10px 20px;
-background:#2563eb;
-color:white;
+.mobile-menu{
+display:none;
+font-size:22px;
+background:none;
 border:none;
-border-radius:5px;
 cursor:pointer;
 }
 
-button.delete{
-background:#dc2626;
+/* DASHBOARD */
+
+.dashboard{
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+}
+
+.card{
+background:rgb(222, 237, 252);
+padding:20px;
+border-radius:10px;
+width:420px;
+}
+
+/* BUSCADOR */
+
+.search-box{
+margin-top: 15px;
+}
+
+.search-box input{
+width:50%;
+padding:10px;
+border:1px solid #ddd;
+}
+
+/* FORM */
+
+.form-panel{
+background:rgb(223, 233, 245);
+padding:20px;
+margin-bottom:20px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+.form-title{
+grid-column:span 2;
+margin-bottom:10px;
+}
+
+.form-group{
+display:flex;
+flex-direction:column;
+}
+
+.form-group.full{
+grid-column:span 2;
+}
+
+label{
+font-size:12px;
+margin-bottom:4px;
+color:#6b7280;
+}
+
+input,textarea{
+padding:8px;
+border-radius:6px;
+border:1px solid #ddd;
+}
+
+/* TABLA */
+
+.table-admin{
+width:100%;
+background:rgb(206, 214, 223);
+overflow:hidden;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+.table-admin th,
+.table-admin td{
+padding:12px;
+border:1px solid #b5bedd;
+}
+
+/* BOTONES */
+
+.btn-primary{
+background:#2563eb;
 color:white;
 border:none;
-padding:5px 10px;
+padding:10px 15px;
+border-radius:6px;
+margin-top: 20px;
+margin-bottom: 20px;
+cursor:pointer;
 }
 
-.modal{
+
+.btn-primary-guardar{
+background:#2563eb;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+width: 200px;
+}
+
+.btn-edit{
+background:#2443cc;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.btn-delete{
+background:#ef4444;
+color:white;
+border:none;
+padding:6px 10px;
+border-radius:6px;
+cursor:pointer;
+margin-left:5px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+.sidebar{
 position:fixed;
+left:-240px;
 top:0;
-left:0;
-width:100%;
 height:100%;
-background:rgba(0,0,0,0.5);
-display:flex;
-justify-content:center;
-align-items:center;
+z-index:1000;
 }
 
-.modal-box{
-background:white;
-padding:30px;
-border-radius:8px;
-width:400px;
-display:flex;
-flex-direction:column;
-gap:10px;
+.sidebar.collapsed{
+left:0;
 }
 
-.modal-box input,
-.modal-box textarea,
-.modal-box select{
-padding:8px;
-border:1px solid #ccc;
-border-radius:5px;
+.mobile-menu{
+display:block;
 }
 
-.actions{
-display:flex;
-gap:10px;
-margin-top:10px;
+.main{
+padding:20px;
 }
 
-.access-denied{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-height:100vh;
-font-size:22px;
-color:red;
+.form-panel{
+grid-template-columns:1fr;
+}
+
 }

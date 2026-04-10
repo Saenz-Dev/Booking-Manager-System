@@ -1,189 +1,191 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel Administrador — Alojamientos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="panel_admin.css" />
-</head>
-<body>
- 
-  <div *ngIf="accessDenied" class="access-denied">
-  <h2>Acceso Denegado</h2>
-  <p>No tienes permisos para acceder al panel administrador</p>
+<div class="admin-layout" [class.sidebar-collapsed]="sidebarColapsado">
+<!-- SIDEBAR -->
+
+<aside class="sidebar" [class.collapsed]="sidebarColapsado">
+
+<button class="toggle" (click)="toggleSidebar()">
+☰
+</button>
+
+<nav>
+
+<div class="menu-item"
+(click)="cambiarSeccion('dashboard')">
+Dashboard
 </div>
 
-<div *ngIf="!accessDenied" class="admin-container">
+<div class="menu-item"
+(click)="cambiarSeccion('alojamientos')">
+Alojamientos
+</div>
 
-  <!-- SIDEBAR -->
+<div class="menu-item">
+Reservas
+</div>
 
-  <aside class="sidebar">
+<div class="menu-item">
+Usuarios
+</div>
 
-    <h2>Panel Admin</h2>
+<div class="menu-item">
+Reportes
+</div>
 
-    <button (click)="switchSection('dashboard')">Dashboard</button>
-    <button (click)="switchSection('accommodations')">Alojamientos</button>
-    <button>Reservas</button>
-    <button>Usuarios</button>
-    <button>Reportes</button>
+</nav>
 
-  </aside>
+</aside>
 
-  <!-- CONTENIDO -->
+<!-- CONTENIDO -->
 
-  <main class="content">
+<main class="main">
 
-    <!-- DASHBOARD -->
+<header class="header">
 
-    <div *ngIf="selectedSection==='dashboard'">
+<button class="mobile-menu"
+(click)="toggleSidebar()">
+☰
+</button>
 
-      <h1>Dashboard</h1>
+<h2>Panel Administrador</h2>
 
-      <div class="stats">
+</header>
 
-        <div class="card">
-          <h3>Total Alojamientos</h3>
-          <p>{{accommodations.length}}</p>
-        </div>
+<!-- DASHBOARD -->
 
-        <div class="card">
-          <h3>Activos</h3>
-          <p>{{accommodations.filter(a=>a.status==='active').length}}</p>
-        </div>
+<section *ngIf="seccionActual==='dashboard'" class="dashboard">
 
-      </div>
+<div class="card">
+<h4>Total alojamientos</h4>
+<p>{{totalAlojamientos}}</p>
+</div>
 
-    </div>
+<div class="card">
+<h4>Capacidad total</h4>
+<p>{{capacidadTotal}}</p>
+</div>
 
-    <!-- GESTIÓN ALOJAMIENTOS -->
+</section>
 
-    <div *ngIf="selectedSection==='accommodations'">
+<!-- GESTION -->
 
-      <h1>Gestión de Alojamientos</h1>
+<section *ngIf="seccionActual==='alojamientos'">
 
-      <button class="create-btn" (click)="openCreate()">
-        Crear alojamiento
-      </button>
+<div class="section-header">
 
-      <table>
-
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Ubicación</th>
-            <th>Precio</th>
-            <th>Capacidad</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-
-          <tr *ngFor="let a of accommodations">
-
-            <td>{{a.name}}</td>
-            <td>{{a.location}}</td>
-            <td>{{a.price}}</td>
-            <td>{{a.capacity}}</td>
-            <td>{{a.status}}</td>
-
-            <td>
-
-              <button (click)="openEdit(a)">
-                Editar
-              </button>
-
-              <button class="delete"
-                (click)="confirmDelete(a.id)">
-                Eliminar
-              </button>
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
-    </div>
-
-  </main>
+<h2>Gestión de alojamientos</h2>
 
 </div>
 
+<!-- BUSCADOR -->
 
-<!-- MODAL FORM -->
+<div class="search-box">
 
-<div *ngIf="showForm" class="modal">
+<input
+type="text"
+placeholder="Buscar alojamiento por nombre o ubicación..."
+[(ngModel)]="busqueda"
+/>
+</div>
 
-  <div class="modal-box">
+<button class="btn-primary"
+(click)="mostrarCrear()">
+Crear alojamiento
+</button>
 
-    <h2 *ngIf="!editing">Crear alojamiento</h2>
-    <h2 *ngIf="editing">Editar alojamiento</h2>
+<!-- FORM -->
 
-    <input placeholder="Nombre"
-      [(ngModel)]="form.name">
+<div class="form-panel"
+*ngIf="mostrarFormulario">
 
-    <input placeholder="Ubicación"
-      [(ngModel)]="form.location">
+<h3 class="form-title">
+Datos del Alojamiento
+</h3>
 
-    <input type="number"
-      placeholder="Precio"
-      [(ngModel)]="form.price">
+<div class="form-group">
+<label>Nombre</label>
+<input [(ngModel)]="nuevoAlojamiento.nombre">
+</div>
 
-    <input type="number"
-      placeholder="Capacidad"
-      [(ngModel)]="form.capacity">
+<div class="form-group">
+<label>Ubicación</label>
+<input [(ngModel)]="nuevoAlojamiento.ubicacion">
+</div>
 
-    <textarea
-      placeholder="Descripción"
-      [(ngModel)]="form.description">
-    </textarea>
+<div class="form-group">
+<label>Precio</label>
+<input type="number"
+[(ngModel)]="nuevoAlojamiento.precio">
+</div>
 
-    <select [(ngModel)]="form.status">
-      <option value="active">Activo</option>
-      <option value="inactive">Inactivo</option>
-    </select>
+<div class="form-group">
+<label>Capacidad</label>
+<input type="number"
+[(ngModel)]="nuevoAlojamiento.capacidad">
+</div>
 
-    <div class="actions">
+<div class="form-group full">
+<label>Descripción</label>
+<textarea
+[(ngModel)]="nuevoAlojamiento.descripcion">
+</textarea>
+</div>
 
-      <button (click)="saveAccommodation()">
-        Guardar
-      </button>
+<button class="btn-primary-guardar"
+(click)="guardarAlojamiento()">
 
-      <button (click)="cancelForm()">
-        Cancelar
-      </button>
+{{editando ? 'Actualizar alojamiento' : 'Guardar alojamiento'}}
 
-    </div>
-
-  </div>
+</button>
 
 </div>
 
+<!-- TABLA -->
 
-<!-- CONFIRMAR ELIMINAR -->
+<table class="table-admin">
 
-<div *ngIf="deleteId!==null" class="modal">
+<thead>
 
-  <div class="modal-box">
+<tr>
+<th>Nombre</th>
+<th>Ubicación</th>
+<th>Precio</th>
+<th>Capacidad</th>
+<th>Acciones</th>
+</tr>
 
-    <h3>Confirmar eliminación</h3>
+</thead>
 
-    <p>¿Deseas eliminar este alojamiento?</p>
+<tbody>
 
-    <button (click)="deleteAccommodation()">
-      Eliminar
-    </button>
+<tr *ngFor="let a of alojamientosFiltrados; let i=index">
 
-    <button (click)="cancelDelete()">
-      Cancelar
-    </button>
+<td>{{a.nombre}}</td>
+<td>{{a.ubicacion}}</td>
+<td>{{a.precio}}</td>
+<td>{{a.capacidad}}</td>
 
-  </div>
+<td>
+
+<button class="btn-edit"
+(click)="editarAlojamiento(i)">
+Editar
+</button>
+
+<button class="btn-delete"
+(click)="eliminarAlojamiento(i)">
+Eliminar
+</button>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+</main>
 
 </div>

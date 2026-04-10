@@ -2,16 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-type Status = "active" | "inactive";
-
-interface Accommodation {
-  id: number;
-  name: string;
-  location: string;
-  price: number;
-  capacity: number;
-  description: string;
-  status: Status;
+interface Alojamiento {
+  nombre: string;
+  ubicacion: string;
+  precio: number;
+  capacidad: number;
+  descripcion: string;
 }
 
 @Component({
@@ -19,158 +15,109 @@ interface Accommodation {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './panel_admin.html',
-  styleUrls: ['./panel_admin.css']
+  styleUrl: './panel_admin.css'
 })
 export class PanelAdmin {
 
-  // ───── RF-008 CONTROL ACCESO ─────
+  seccionActual = 'dashboard';
 
-  currentUser = {
-    name: "Administrador",
-    role: "admin"
+  mostrarFormulario = false;
+  editando = false;
+  indexEditar: number | null = null;
+
+  sidebarColapsado = false;
+
+  busqueda = '';
+
+  alojamientos: Alojamiento[] = [];
+
+  nuevoAlojamiento: Alojamiento = {
+    nombre: '',
+    ubicacion: '',
+    precio: 0,
+    capacidad: 0,
+    descripcion: ''
   };
 
-  accessDenied = false;
+  cambiarSeccion(seccion: string) {
+    this.seccionActual = seccion;
+    this.mostrarFormulario = false;
+  }
 
-  // ───── ESTADO ─────
+  toggleSidebar() {
+    this.sidebarColapsado = !this.sidebarColapsado;
+  }
 
-  accommodations: Accommodation[] = [
-    {
-      id: 1,
-      name: "Cabaña del Lago",
-      location: "Villa de Leyva",
-      price: 280000,
-      capacity: 4,
-      description: "Cabaña frente al lago",
-      status: "active"
+  mostrarCrear() {
+    this.mostrarFormulario = true;
+    this.editando = false;
+    this.resetForm();
+  }
+
+  guardarAlojamiento() {
+
+    if (
+      !this.nuevoAlojamiento.nombre ||
+      !this.nuevoAlojamiento.ubicacion ||
+      !this.nuevoAlojamiento.descripcion ||
+      this.nuevoAlojamiento.precio <= 0 ||
+      this.nuevoAlojamiento.capacidad <= 0
+    ) {
+      alert("Todos los campos son obligatorios");
+      return;
     }
-  ];
 
-  nextId = 2;
-
-  selectedSection = "dashboard";
-
-  // formulario
-  showForm = false;
-  editing = false;
-
-  form: Accommodation = {
-    id: 0,
-    name: "",
-    location: "",
-    price: 0,
-    capacity: 1,
-    description: "",
-    status: "active"
-  };
-
-  // eliminar
-  deleteId: number | null = null;
-
-  constructor() {
-    this.validateAccess();
-  }
-
-  validateAccess() {
-    if (this.currentUser.role !== "admin") {
-      this.accessDenied = true;
+    if (this.editando && this.indexEditar !== null) {
+      this.alojamientos[this.indexEditar] = { ...this.nuevoAlojamiento };
+    } else {
+      this.alojamientos.push({ ...this.nuevoAlojamiento });
     }
+
+    this.resetForm();
+    this.mostrarFormulario = false;
   }
 
-  // ───── NAVEGACIÓN ─────
-
-  switchSection(section: string) {
-    this.selectedSection = section;
+  editarAlojamiento(index: number) {
+    this.nuevoAlojamiento = { ...this.alojamientos[index] };
+    this.indexEditar = index;
+    this.editando = true;
+    this.mostrarFormulario = true;
   }
 
-  // ───── RF-009 CREAR ─────
+  eliminarAlojamiento(index: number) {
 
-  openCreate() {
-    this.editing = false;
-    this.showForm = true;
+    if (confirm("¿Eliminar alojamiento?")) {
+      this.alojamientos.splice(index, 1);
+    }
 
-    this.form = {
-      id: 0,
-      name: "",
-      location: "",
-      price: 0,
-      capacity: 1,
-      description: "",
-      status: "active"
+  }
+
+  resetForm() {
+    this.nuevoAlojamiento = {
+      nombre: '',
+      ubicacion: '',
+      precio: 0,
+      capacidad: 0,
+      descripcion: ''
     };
   }
 
-  // ───── RF-010 EDITAR ─────
+  get alojamientosFiltrados() {
 
-  openEdit(acc: Accommodation) {
-    this.editing = true;
-    this.showForm = true;
+    if (!this.busqueda) return this.alojamientos;
 
-    this.form = { ...acc };
+    return this.alojamientos.filter(a =>
+      a.nombre.toLowerCase().includes(this.busqueda.toLowerCase()) ||
+      a.ubicacion.toLowerCase().includes(this.busqueda.toLowerCase())
+    );
   }
 
-  saveAccommodation() {
-
-    if (!this.form.name) {
-      alert("El nombre es obligatorio");
-      return;
-    }
-
-    if (this.form.price <= 0) {
-      alert("El precio debe ser mayor a 0");
-      return;
-    }
-
-    if (this.editing) {
-
-      const index = this.accommodations.findIndex(a => a.id === this.form.id);
-
-      if (index === -1) {
-        alert("Alojamiento no encontrado");
-        return;
-      }
-
-      this.accommodations[index] = { ...this.form };
-
-    } else {
-
-      this.form.id = this.nextId++;
-
-      this.accommodations.push({ ...this.form });
-
-    }
-
-    this.showForm = false;
+  get totalAlojamientos() {
+    return this.alojamientos.length;
   }
 
-  cancelForm() {
-    this.showForm = false;
-  }
-
-  // ───── RF-0011 ELIMINAR ─────
-
-  confirmDelete(id: number) {
-    this.deleteId = id;
-  }
-
-  deleteAccommodation() {
-
-    if (this.deleteId === null) return;
-
-    const index = this.accommodations.findIndex(a => a.id === this.deleteId);
-
-    if (index === -1) {
-      alert("Alojamiento no encontrado");
-      return;
-    }
-
-    this.accommodations.splice(index, 1);
-
-    this.deleteId = null;
-  }
-
-  cancelDelete() {
-    this.deleteId = null;
+  get capacidadTotal() {
+    return this.alojamientos.reduce((acc, a) => acc + a.capacidad, 0);
   }
 
 }
