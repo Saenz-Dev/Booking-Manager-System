@@ -1,26 +1,31 @@
 <div id="app">
+  <button class="logout-fab" type="button" (click)="abrirModalCerrarSesion()" aria-label="Cerrar sesión">
+    <i class="bi bi-box-arrow-right logout-icon" aria-hidden="true"></i>
+    <span>Cerrar sesión</span>
+  </button>
+
   <div class="hero">
     <div class="hero-badge">★ Sistema de Reservas</div>
     <h1>Ranchos El Paraiso</h1>
     <p>Bienvenido a tu portal de reservas. Gestiona habitaciones, mesas y más desde un solo lugar.</p>
     <div class="user-pill" (click)="showTab('perfil')">
-      <div class="avatar">CM</div>
-      Carlos Mendoza &nbsp;·&nbsp; Miembro Gold
+      <div class="avatar">{{ usuarioIniciales }}</div>
+      {{ usuarioSesion }}
     </div>
   </div>
 
   <div class="nav-tabs">
     <button class="tab-btn" [class.active]="activeTab === 'reservar'" (click)="showTab('reservar')" id="tab-reservar">
-      <span class="tab-icon">＋</span> Nueva reserva
+      <i class="bi bi-plus-circle tab-icon" aria-hidden="true"></i> Nueva reserva
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'historial'" (click)="showTab('historial')" id="tab-historial">
-      <span class="tab-icon">◷</span> Historial
+      <i class="bi bi-clock-history tab-icon" aria-hidden="true"></i> Historial
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'facturas'" (click)="showTab('facturas')" id="tab-facturas">
-      <span class="tab-icon">◻</span> Facturas
+      <i class="bi bi-receipt tab-icon" aria-hidden="true"></i> Facturas
     </button>
     <button class="tab-btn" [class.active]="activeTab === 'perfil'" (click)="showTab('perfil')" id="tab-perfil">
-      <span class="tab-icon">◯</span> Mi perfil
+      <i class="bi bi-person-circle tab-icon" aria-hidden="true"></i> Mi perfil
     </button>
   </div>
 
@@ -253,46 +258,18 @@
 
   <!-- PANEL: PERFIL -->
   <div class="panel" [class.active]="activeTab === 'perfil'" id="panel-perfil">
-    <p class="section-title">Mi perfil</p>
-    <div class="profile-header">
-      <div class="profile-avatar">CM</div>
-      <div class="profile-meta">
-        <strong>Carlos Mendoza</strong>
-        <span>carlos.mendoza@email.com</span>
-        <div class="tier-badge">★ Miembro Gold</div>
-      </div>
+    <app-editar-usuario (profileUpdated)="actualizarSesionDesdePerfil($event)"></app-editar-usuario>
+  </div>
+</div>
+
+<div class="logout-modal-backdrop" *ngIf="mostrarModalCerrarSesion" (click)="cancelarCerrarSesion()">
+  <div class="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-modal-title" (click)="$event.stopPropagation()">
+    <h3 id="logout-modal-title">Cerrar sesión</h3>
+    <p>¿Seguro que deseas cerrar sesión?</p>
+    <div class="logout-modal-actions">
+      <button type="button" class="btn-sm" (click)="cancelarCerrarSesion()">Cancelar</button>
+      <button type="button" class="btn-sm danger" (click)="cerrarSesion()">Sí, cerrar sesión</button>
     </div>
-    <div class="stats-row">
-      <div class="stat-card"><div class="num">7</div><div class="lbl">Reservas totales</div></div>
-      <div class="stat-card"><div class="num">12</div><div class="lbl">Noches hospedado</div></div>
-      <div class="stat-card"><div class="num">1.2M</div><div class="lbl">Puntos Gold</div></div>
-    </div>
-    <div class="form-box">
-      <h3>Información personal</h3>
-      <div class="form-row">
-        <div class="field"><label>Nombre</label><input type="text" value="Carlos" /></div>
-        <div class="field"><label>Apellido</label><input type="text" value="Mendoza" /></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label>Correo electrónico</label><input type="email" value="carlos.mendoza@email.com" /></div>
-        <div class="field"><label>Teléfono</label><input type="tel" value="+57 310 555 0192" /></div>
-      </div>
-      <div class="form-row">
-        <div class="field"><label>Fecha de nacimiento</label><input type="date" value="1988-04-15" /></div>
-        <div class="field"><label>Documento de identidad</label><input type="text" value="CC 1.085.432.001" /></div>
-      </div>
-      <div class="form-row full">
-        <div class="field"><label>Preferencias (habitación, dieta, etc.)</label><input type="text" placeholder="Piso alto, sin gluten, cama king…" /></div>
-      </div>
-    </div>
-    <div class="form-box">
-      <h3>Cambiar contraseña</h3>
-      <div class="form-row">
-        <div class="field"><label>Contraseña actual</label><input type="password" placeholder="••••••••" /></div>
-        <div class="field"><label>Nueva contraseña</label><input type="password" placeholder="••••••••" /></div>
-      </div>
-    </div>
-    <button class="btn-primary" (click)="showToast('Perfil actualizado correctamente ✓')">Guardar cambios</button>
   </div>
 </div>
 

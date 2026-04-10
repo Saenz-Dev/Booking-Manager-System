@@ -1,0 +1,134 @@
+<p class="section-title">Mi perfil</p>
+<div class="profile-header">
+    <div class="profile-avatar">{{ (profileData.nombres.charAt(0) + profileData.apellidos.charAt(0)).toUpperCase() ||
+        'US' }}</div>
+    <div class="profile-meta">
+        <strong>{{ profileData.nombres }} {{ profileData.apellidos }}</strong>
+        <span>{{ profileData.correo || 'Sin correo registrado' }}</span>
+        <span class="tier-badge" *ngIf="isLoadingProfile">Cargando perfil...</span>
+    </div>
+</div>
+<div class="stats-row">
+    <div class="stat-card">
+        <div class="num">7</div>
+        <div class="lbl">Reservas totales</div>
+    </div>
+    <div class="stat-card">
+        <div class="num">12</div>
+        <div class="lbl">Noches hospedado</div>
+    </div>
+</div>
+
+<form class="form-box" [formGroup]="profileForm" (ngSubmit)="guardarPerfil()" novalidate>
+    <h3>Información personal</h3>
+    <div class="form-row">
+        <div class="field">
+            <label>Nombre</label>
+            <input type="text" formControlName="nombres" />
+            <small class="field-error"
+                *ngIf="isEditingProfile && nombreControl?.touched && nombreControl?.hasError('required')">El nombre es
+                obligatorio.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && nombreControl?.touched && nombreControl?.hasError('minlength')">Debe tener al
+                menos 2 caracteres.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && nombreControl?.touched && nombreControl?.hasError('pattern')">Solo se
+                permiten letras y espacios.</small>
+        </div>
+        <div class="field">
+            <label>Apellido</label>
+            <input type="text" formControlName="apellidos" />
+            <small class="field-error"
+                *ngIf="isEditingProfile && apellidoControl?.touched && apellidoControl?.hasError('required')">El
+                apellido es obligatorio.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && apellidoControl?.touched && apellidoControl?.hasError('minlength')">Debe
+                tener al menos 2 caracteres.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && apellidoControl?.touched && apellidoControl?.hasError('pattern')">Solo se
+                permiten letras y espacios.</small>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="field"><label>Correo electrónico</label><input type="email" formControlName="correo" /></div>
+        <div class="field">
+            <label>Teléfono</label>
+            <input type="tel" formControlName="telefono" />
+            <small class="field-error"
+                *ngIf="isEditingProfile && telefonoControl?.touched && telefonoControl?.hasError('required')">El
+                teléfono es obligatorio.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && telefonoControl?.touched && telefonoControl?.hasError('pattern')">Debe
+                iniciar con 3 y tener 10 dígitos.</small>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="field">
+            <label>Fecha de nacimiento</label>
+            <input type="date" formControlName="fechaNacimiento" />
+            <small class="field-error"
+                *ngIf="isEditingProfile && fechaNacimientoControl?.touched && fechaNacimientoControl?.hasError('required')">La
+                fecha de nacimiento es obligatoria.</small>
+        </div>
+        <div class="field">
+            <label>Ciudad</label>
+            <input type="text" formControlName="ciudad" />
+            <small class="field-error"
+                *ngIf="isEditingProfile && ciudadControl?.touched && ciudadControl?.hasError('required')">La ciudad es
+                obligatoria.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && ciudadControl?.touched && ciudadControl?.hasError('minlength')">Debe tener al
+                menos 2 caracteres.</small>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="field">
+            <label>Tipo de documento</label>
+            <select formControlName="tipoDocumento">
+                <option value="CC">CC</option>
+                <option value="RC">RC</option>
+                <option value="CE">CE</option>
+                <option value="PA">PA</option>
+            </select>
+            <small class="field-error"
+                *ngIf="isEditingProfile && tipoDocumentoControl?.touched && tipoDocumentoControl?.hasError('required')">Selecciona
+                un tipo de documento.</small>
+        </div>
+        <div class="field">
+            <label>Número de documento</label>
+            <input type="text" formControlName="numeroDocumento" />
+            <small class="field-error" *ngIf="isEditingProfile && numeroDocumentoControl?.pending">Validando...</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && numeroDocumentoControl?.touched && numeroDocumentoControl?.hasError('required')">El
+                número de documento es obligatorio.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && numeroDocumentoControl?.touched && numeroDocumentoControl?.hasError('pattern')">Debe
+                tener de 6 a 12 caracteres.</small>
+            <small class="field-error"
+                *ngIf="isEditingProfile && numeroDocumentoControl?.touched && numeroDocumentoControl?.hasError('numeroDocumentoExistente')">Este
+                número de documento ya está registrado en otro usuario.</small>
+        </div>
+    </div>
+
+    <div class="profile-actions">
+        <button class="btn-primary" *ngIf="!isEditingProfile" type="button" (click)="activarEdicionPerfil()">Activar
+            edición</button>
+        <button class="btn-primary" *ngIf="isEditingProfile" type="submit" [disabled]="!canSaveProfile"
+            [class.is-disabled]="!canSaveProfile" [attr.aria-disabled]="!canSaveProfile">Guardar cambios</button>
+        <button class="btn-sm" type="button" *ngIf="isEditingProfile"
+            (click)="cancelarEdicionPerfil()">Cancelar</button>
+    </div>
+</form>
+
+<!--
+<div class="form-box" *ngIf="isEditingProfile">
+    <h3>Cambiar contraseña</h3>
+    <div class="form-row">
+        <div class="field"><label>Contraseña actual</label><input type="password" placeholder="••••••••" /></div>
+        <div class="field"><label>Nueva contraseña</label><input type="password" placeholder="••••••••" /></div>
+    </div>
+</div>
+-->

@@ -109,7 +109,7 @@
             <div *ngIf="registroForm.get('telefono')?.invalid && registroForm.get('telefono')?.touched"
                 class="text-danger small">
                 <div *ngIf="registroForm.get('telefono')?.hasError('required')">Campo requerido</div>
-                <div *ngIf="registroForm.get('telefono')?.hasError('pattern')">Debe tener 10 dígitos</div>
+                <div *ngIf="registroForm.get('telefono')?.hasError('pattern')">Debe iniciar con 3 y tener 10 dígitos.</div>
             </div>
         </div>
 
@@ -151,5 +151,4 @@
         </div>
     </form>
 
-    <app-notificaciones></app-notificaciones>
 </div>

@@ -5,16 +5,16 @@ import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 
 import { NotificacionesService } from '../../services/notificaciones.service';
+import { UserService } from '../../services/users.service';
 import { LoginService } from '../../services/login.service';
-import { NotificacionesComponent } from "../notificaciones/notificaciones";
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterLink, NotificacionesComponent],
+  imports: [FormsModule, CommonModule, RouterLink],
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  providers: [NotificacionesService, LoginService]
+  providers: [LoginService]
 })
 export class Login implements OnInit {
 
@@ -26,7 +26,8 @@ export class Login implements OnInit {
   constructor(
     private router: Router,
     private _notificacionesService: NotificacionesService,
-    private _loginService: LoginService
+    private _loginService: LoginService,
+    private _userService: UserService
   ) { }
 
   ngOnInit(): void {
@@ -49,15 +50,21 @@ export class Login implements OnInit {
 
     this._loginService.login(this.email, this.password).subscribe((result: any) => {
       if (result.code === 200) {
+
         this.error = "";
         this._notificacionesService.success('Bienvenido', 'Éxito');
-        localStorage.setItem('cuenta',result.data.correo );
+        localStorage.setItem('cuenta', result.data.correo);
         localStorage.setItem('id_usuario', result.data.id_usuario);
         localStorage.setItem('token', result.data.token);
         localStorage.setItem('id_cuenta', result.data.id_cuenta);
-        setTimeout(() => {
-          this.router.navigate(['/inicio']);
-        }, 2500);
+        this._userService.getUsuarioId(localStorage.getItem('id_usuario') ?? '').subscribe((userResult: any) => {
+          if (userResult.code === 200) {
+            console.log("Desde aqui:" + userResult);
+            localStorage.setItem('nombres', userResult.data.nombres);
+            localStorage.setItem('apellidos', userResult.data.apellidos);
+            this.router.navigate(['/inicio']);
+          }
+        });
         return;
       }
 
@@ -66,7 +73,7 @@ export class Login implements OnInit {
     },
       error => {
         console.log('Error en la solicitud de login:', error.error.data);
-        this.error = 'Error al conectar con el servidor';
+        this.error = 'Ha ocurrido un error';
         this._notificacionesService.error(error.error.data, 'Error');
       });
   }

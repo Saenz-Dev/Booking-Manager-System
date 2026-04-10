@@ -10,14 +10,13 @@ import { UserService } from '../../services/users.service';
 import { CuentasService } from '../../services/cuentas.service';
 import { Usuario } from '../../modelo/usuario';
 import { Cuenta } from '../../modelo/cuenta';
-import { catchError, map, of, switchMap, timer } from 'rxjs';
-import { NotificacionesComponent } from "../notificaciones/notificaciones";
+import { catchError, map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-registrar',
-  imports: [ReactiveFormsModule, NgIf, RouterLink, NotificacionesComponent],
+  imports: [ReactiveFormsModule, NgIf, RouterLink, ],
   templateUrl: './registrar.html',
-  providers: [UserService, CuentasService, NotificacionesService],
+  providers: [UserService, CuentasService],
   styleUrl: './registrar.css'
 })
 export class Registrar {
@@ -31,7 +30,7 @@ export class Registrar {
     private route: ActivatedRoute,
     private _userService: UserService,
     private _cuentasService: CuentasService,
-    private _notificacionesService: NotificacionesService
+    private _notificacionesService: NotificacionesService,
   ) {
     this.registroForm = this.fb.group({
       nombres: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50), Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/)]],
@@ -41,7 +40,7 @@ export class Registrar {
       fecha_nacimiento: ['', [Validators.required, this.mayorDe18Anios()]],
       ciudad: ['', [Validators.required, Validators.pattern(/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/), Validators.minLength(2)]],
       correo: ['', [Validators.required, Validators.email], [this.validarExistenciaCorreo()]],
-      telefono: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      telefono: ['', [Validators.required, Validators.pattern(/^3[0-9]{9}$/)]],
       contrasena: ['', [Validators.required, Validators.pattern(/^(?=.*[A-Z])(?=.*[0-9]).{6,}$/)]],
       confirmPassword: ['', Validators.required]
     }, {
@@ -103,16 +102,16 @@ export class Registrar {
 
       const correoIngresado = String(control.value).trim().toLowerCase();
 
-      return timer(300).pipe(
-        switchMap(() => this._cuentasService.getCuentasSinToken()),
+      return this._cuentasService.getCuentasSinToken().pipe(
         map((response: any) => {
           if (!response || !response.data) return null;
-
+          console.log(response.data);
           const cuentas: Cuenta[] = response.data;
-
+          
           const existe = cuentas.some(c =>
             String(c.correo).trim().toLowerCase() === correoIngresado
           );
+          console.log(existe);
 
           return existe ? { correoExistente: true } : null;
         }),
@@ -127,12 +126,11 @@ export class Registrar {
 
       const numero_documento = String(control.value).trim().toLowerCase();
 
-      return timer(300).pipe(
-        switchMap(() => this._userService.getUsuarioSinToken(Number(numero_documento))),
+      return this._userService.getUsuarioSinToken(Number(numero_documento)).pipe(
         map((response: any) => {
           if (!response || !response.data) return null;
           const usuarios: Usuario[] = [];
-          console.log(usuarios[0])
+          usuarios.push(response.data);
           const existe = usuarios.some(c =>
             String(c.numero_documento).trim().toLowerCase() === numero_documento
           );
@@ -161,10 +159,7 @@ export class Registrar {
     this.addPerson();
     this._notificacionesService.success('Usuario creado correctamente', 'Éxito');
     this.registrarCuenta(Number(this.getBodyUsuario().numero_documento));
-
-    setTimeout(() => {
-      this.router.navigate(['/login']);
-    }, 3000);
+    this.router.navigate(['/login']);
   }
 
   addPerson() {
@@ -182,6 +177,7 @@ export class Registrar {
   }
 
   addCuenta(id: number, cuenta: Cuenta) {
+    console.log('Entra a addCuenta: ' + id);
     this._cuentasService.addCuentaSinToken(id, cuenta).subscribe(
       (response: any) => {
         console.log('Entra a addCuenta')
@@ -203,7 +199,8 @@ export class Registrar {
     this._userService.getUsuarioSinToken(numero_identificacion).subscribe(
       (response: any) => {
         if (response.code == 200) {
-          console.log(response.data.id_usuario);
+
+          console.log('Data usuario: ' + response.data);
           this.addCuenta(response.data.id_usuario, this.usuario.cuenta);
           console.log('Cuenta registrada');
           return;

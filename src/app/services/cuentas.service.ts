@@ -18,7 +18,7 @@ export class CuentasService {
     getCuentasSinToken() {
         return this._http.get(this.url + 'registrar_cuenta').pipe(
             map(response => {
-                console.log('Entra');
+                // console.log('Entra');
                 console.log(response);
                 return response
             })
@@ -58,7 +58,7 @@ export class CuentasService {
 
         return this._http.get(this.url + 'cuentas').pipe(
             map(response => {
-                console.log('Entra');
+                // console.log('Entra');
                 console.log(response);
                 return response
             })
@@ -66,7 +66,7 @@ export class CuentasService {
     }
 
     getCuenta(id: number) {
-        console.log('Entra');
+        // console.log('Entra');
         let params = {
             'id': id
         }

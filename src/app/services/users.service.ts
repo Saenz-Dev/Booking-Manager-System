@@ -30,9 +30,42 @@ export class UserService {
         let params = {
             'id': numero_identificacion
         }
+        console.log(params);
+        return this._http.get(this.url + 'usuario_sin_token', { params }).pipe(
+            map(response => {
+                console.log("response: " + response);
+                return response
+            })
+        )
+    }
+
+    getUsuarioId(id_usuario: string) {
+        let params = {
+            'id_usuario': id_usuario
+        }
+        console.log(params);
         return this._http.get(this.url + 'usuario_sin_token', { params }).pipe(
             map(response => {
                 console.log(response);
+                return response
+            })
+        )
+    }
+
+    actualizarUsuarioId(id_usuario: string, datos: any) {
+        let params = {
+            'id': id_usuario
+        }
+        let options = {
+            params,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': localStorage.getItem('token') ?? ''
+            }
+        }
+
+        return this._http.put(this.url + 'usuarios', datos, options).pipe(
+            map(response => {
                 return response
             })
         )
