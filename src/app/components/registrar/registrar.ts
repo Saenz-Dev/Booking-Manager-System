@@ -104,7 +104,7 @@ export class Registrar {
       const correoIngresado = String(control.value).trim().toLowerCase();
 
       return timer(300).pipe(
-        switchMap(() => this._cuentasService.getCuentas()),
+        switchMap(() => this._cuentasService.getCuentasSinToken()),
         map((response: any) => {
           if (!response || !response.data) return null;
 
@@ -128,15 +128,16 @@ export class Registrar {
       const numero_documento = String(control.value).trim().toLowerCase();
 
       return timer(300).pipe(
-        switchMap(() => this._userService.getUsuarios()),
+        switchMap(() => this._userService.getUsuarioSinToken(Number(numero_documento))),
         map((response: any) => {
           if (!response || !response.data) return null;
-
-          const usuarios: Usuario[] = response.data;
-
+          const usuarios: Usuario[] = [];
+          console.log(usuarios[0])
           const existe = usuarios.some(c =>
             String(c.numero_documento).trim().toLowerCase() === numero_documento
           );
+          console.log("PASA")
+          console.log(existe);
 
           return existe ? { numero_documentoExistente: true } : null;
         }),
@@ -158,8 +159,8 @@ export class Registrar {
     const bodyUsuario = this.getBodyUsuario();
 
     this.addPerson();
-    this.registrarCuenta(Number(this.getBodyUsuario().numero_documento));
     this._notificacionesService.success('Usuario creado correctamente', 'Éxito');
+    this.registrarCuenta(Number(this.getBodyUsuario().numero_documento));
 
     setTimeout(() => {
       this.router.navigate(['/login']);
@@ -167,7 +168,7 @@ export class Registrar {
   }
 
   addPerson() {
-    this._userService.addPerson(this.getBodyUsuario()).subscribe(
+    this._userService.addUsuarioSinToken(this.getBodyUsuario()).subscribe(
       (response: any) => {
         if (response.code != 200 && response.code != 201) {
           return;
@@ -181,8 +182,9 @@ export class Registrar {
   }
 
   addCuenta(id: number, cuenta: Cuenta) {
-    this._cuentasService.addCuenta(id, cuenta).subscribe(
+    this._cuentasService.addCuentaSinToken(id, cuenta).subscribe(
       (response: any) => {
+        console.log('Entra a addCuenta')
         if (response.code != 200 && response.code != 201) {
           this._notificacionesService.error('Error al registrar la cuenta', 'Error');
           return;
@@ -197,10 +199,13 @@ export class Registrar {
   }
 
   registrarCuenta(numero_identificacion: number) {
-    this._userService.getUsuario(numero_identificacion).subscribe(
+    console.log(numero_identificacion);
+    this._userService.getUsuarioSinToken(numero_identificacion).subscribe(
       (response: any) => {
         if (response.code == 200) {
-          this.addCuenta(response.data[0].id_usuario, this.usuario.cuenta);
+          console.log(response.data.id_usuario);
+          this.addCuenta(response.data.id_usuario, this.usuario.cuenta);
+          console.log('Cuenta registrada');
           return;
         }
       }

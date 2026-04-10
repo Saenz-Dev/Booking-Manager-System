@@ -56,6 +56,7 @@
                 class="text-danger small">
                 <div *ngIf="registroForm.get('numero_documento')?.hasError('required')">Campo requerido</div>
                 <div *ngIf="registroForm.get('numero_documento')?.hasError('pattern')">Entre 6 y 12 dígitos</div>
+                <div *ngIf="registroForm.get('numero_documento')?.hasError('numero_documentoExistente')">Ya está registrado</div>
             </div>
         </div>
 
@@ -108,6 +109,7 @@
             <div *ngIf="registroForm.get('telefono')?.invalid && registroForm.get('telefono')?.touched"
                 class="text-danger small">
                 <div *ngIf="registroForm.get('telefono')?.hasError('required')">Campo requerido</div>
+                <div *ngIf="registroForm.get('telefono')?.hasError('pattern')">Debe tener 10 dígitos</div>
             </div>
         </div>
 

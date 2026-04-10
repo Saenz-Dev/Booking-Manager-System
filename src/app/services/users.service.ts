@@ -19,12 +19,59 @@ export class UserService {
         this.url = GLOBAL.url;
     }
 
+    getUsuariosSinToken() {
+        return this._http.get(this.url + 'usuario_sin_token').pipe(
+            map(response => { return response })
+        )
+    }
+
+
+    getUsuarioSinToken(numero_identificacion: number) {
+        let params = {
+            'id': numero_identificacion
+        }
+        return this._http.get(this.url + 'usuario_sin_token', { params }).pipe(
+            map(response => {
+                console.log(response);
+                return response
+            })
+        )
+    }
+
+    addUsuarioSinToken(usuario: Usuario) {
+        let body = {
+            'nombres': usuario.nombres,
+            'apellidos': usuario.apellidos,
+            'tipo_documento': usuario.tipo_documento,
+            'numero_documento': usuario.numero_documento,
+            'telefono': usuario.telefono,
+            'ciudad': usuario.ciudad,
+            'fecha_nacimiento': usuario.fecha_nacimiento,
+            'estado': usuario.estado,
+            'id_rol': usuario.id_rol,
+            'cuenta': {
+                'correo': usuario.cuenta.correo,
+                'contrasena': usuario.cuenta.contrasena,
+                'estado_sesion': usuario.cuenta.estado_sesion
+            }
+        }
+
+        let options = {
+            'headers': {
+                'Content-Type': 'application/json'
+            }
+        }
+        return this._http.post(this.url + 'usuario_sin_token', body, options).pipe(
+            map(response => { return response })
+        );
+    }
+
     getUsuarios(/*token: any*/) {
         // let headers = new HttpHeaders({ 'Authorization': token });
         // let options = {
         //     'headers': headers
         // }
-        return this._http.get(this.url + 'usuarios_tareas').pipe(
+        return this._http.get(this.url + 'usuarios').pipe(
             map(response => {
                 console.log(response);
                 return response
@@ -32,17 +79,17 @@ export class UserService {
         );
     }
 
-    getUsuario(numero_identificacion:number) {
+    getUsuario(numero_identificacion: number) {
         let params = {
             'id': numero_identificacion
         }
         console.log(params);
-        return this._http.get(this.url + 'usuarios', { params }).pipe(
+        return this._http.get(this.url + 'usuario', { params }).pipe(
             map(response => { return response })
         )
     }
 
-    addPerson(usuario:Usuario) {
+    addPerson(usuario: Usuario) {
         let body = {
             'nombres': usuario.nombres,
             'apellidos': usuario.apellidos,
@@ -63,11 +110,11 @@ export class UserService {
         let options = {
             'headers': {
                 'Content-Type': 'application/json'
-            } 
+            }
             // new HttpHeaders({ 'Authorization': token }),
 
         }
-        return this._http.post(this.url + 'usuarios', body, options).pipe(
+        return this._http.post(this.url + 'usuario', body, options).pipe(
             map(response => { return response })
         );
     }

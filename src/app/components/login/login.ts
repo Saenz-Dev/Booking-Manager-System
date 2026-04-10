@@ -54,6 +54,7 @@ export class Login implements OnInit {
         localStorage.setItem('cuenta',result.data.correo );
         localStorage.setItem('id_usuario', result.data.id_usuario);
         localStorage.setItem('token', result.data.token);
+        localStorage.setItem('id_cuenta', result.data.id_cuenta);
         setTimeout(() => {
           this.router.navigate(['/inicio']);
         }, 2500);
