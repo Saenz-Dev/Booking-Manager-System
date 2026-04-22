@@ -7,6 +7,7 @@ import { GLOBAL } from './global';
     providedIn: 'root'
 })
 export class HabitacionesService {
+    // URL base para operaciones de cabañas.
     public url: string;
 
     constructor(
@@ -15,6 +16,7 @@ export class HabitacionesService {
         this.url = GLOBAL.url;
     }
 
+    // Obtiene el catálogo de habitaciones desde el backend.
     getHabitaciones() {
         const options = {
             headers: {

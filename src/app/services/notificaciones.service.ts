@@ -13,11 +13,13 @@ export interface Notificacion {
 
 @Injectable({ providedIn: 'root' })
 export class NotificacionesService {
+    // Lista reactiva de notificaciones activas.
     private _items = new BehaviorSubject<Notificacion[]>([]);
     readonly items$ = this._items.asObservable();
 
     private id = 0;
 
+    // Crea la notificación y la quita sola al terminar.
     mostrar(tipo: TipoNotificacion, mensaje: string, titulo?: string, duracionMs = 3500) {
         const nueva: Notificacion = { id: ++this.id, tipo, mensaje, titulo, duracionMs };
         const actuales = this._items.value;

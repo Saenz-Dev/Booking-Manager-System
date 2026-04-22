@@ -21,6 +21,7 @@ import { catchError, map, of, switchMap } from 'rxjs';
 })
 export class Registrar {
 
+  // Formulario reactivo y modelo temporal de usuario.
   registroForm: FormGroup;
   usuario: Usuario;
 
@@ -49,6 +50,7 @@ export class Registrar {
     this.usuario = new Usuario(0, '', '', '', '', 0, '', new Date(), 1, 2, new Cuenta(0, '', '', 0));
   }
 
+  // Arma el payload final usando los datos del formulario.
   getBodyUsuario() {
     const form = this.registroForm.value;
 
@@ -150,6 +152,7 @@ export class Registrar {
     return pass === confirm ? null : { noSonIguales: true };
   }
 
+  // Envía el registro y luego crea la cuenta asociada.
   onSubmit() {
     if (this.registroForm.invalid) {
       return;

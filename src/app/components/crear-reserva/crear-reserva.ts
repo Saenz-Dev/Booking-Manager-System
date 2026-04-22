@@ -12,6 +12,7 @@ type ReservationType = 'room' | 'table';
     styleUrl: './crear-reserva.css'
 })
 export class CrearReservaComponent implements OnInit {
+    // Avisa al padre cuando termina una reserva.
     @Output() reservationConfirmed = new EventEmitter<string>();
 
     selectedType: ReservationType = 'room';
@@ -116,6 +117,7 @@ export class CrearReservaComponent implements OnInit {
         this.reservationConfirmed.emit(type);
     }
 
+    // Calcula resumen y total de la reserva de habitación.
     private calcRoom(): void {
         if (!this.checkIn || !this.checkOut) {
             this.roomSummaryVisible = false;

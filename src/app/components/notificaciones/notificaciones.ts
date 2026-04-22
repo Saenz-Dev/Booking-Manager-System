@@ -10,5 +10,6 @@ import { NotificacionesService } from '../../services/notificaciones.service';
     styleUrl: './notificaciones.css'
 })
 export class NotificacionesComponent {
+    // El template pinta las notificaciones emitidas por el servicio.
     constructor(public noti: NotificacionesService) { }
 }

@@ -9,5 +9,6 @@ import { NotificacionesComponent } from "./components/notificaciones/notificacio
   styleUrl: './app.css'
 })
 export class App {
+  // Titulo reactivo para la vista principal.
   protected readonly title = signal('Booking_Manager_System');
 }

@@ -18,6 +18,7 @@ import { LoginService } from '../../services/login.service';
 })
 export class Login implements OnInit {
 
+  // Campos del formulario de acceso.
   email: string = "";
   password: string = "";
   error: string = "";
@@ -41,6 +42,7 @@ export class Login implements OnInit {
       });
   }
 
+  // Valida credenciales y crea la sesión local.
   iniciarSesion() {
     if (!this.email || !this.password) {
       this.error = "Todos los campos son obligatorios";

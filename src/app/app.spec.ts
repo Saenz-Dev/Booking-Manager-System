@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 
+// Pruebas básicas de render del componente raíz.
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({

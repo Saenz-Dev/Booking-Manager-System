@@ -1,3 +1,4 @@
+// Modelo simple de la cuenta de acceso.
 export class Cuenta {
     constructor(
         public id_cuenta: number,

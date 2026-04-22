@@ -9,6 +9,7 @@ import { GLOBAL } from "./global";
     providedIn: 'root'
 })
 export class UserService {
+    // URL base del módulo de usuarios.
     public url: string;
     public filesUpload: any;
     public resultUpload: any;
@@ -52,6 +53,7 @@ export class UserService {
         )
     }
 
+    // Actualiza datos de perfil del usuario actual.
     actualizarUsuarioId(id_usuario: string, datos: any) {
         let params = {
             'id': id_usuario

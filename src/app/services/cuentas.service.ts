@@ -7,6 +7,7 @@ import { GLOBAL } from "./global";
 
 @Injectable()
 export class CuentasService {
+    // URL base del módulo de cuentas.
     public url: string;
 
     constructor(
@@ -34,6 +35,7 @@ export class CuentasService {
         )
     }
 
+    // Registra una cuenta nueva sin requerir token.
     addCuentaSinToken(id_usuario: any, cuenta: Cuenta) {
         let body = {
             'correo': cuenta.correo,

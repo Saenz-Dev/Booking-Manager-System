@@ -13,12 +13,14 @@ export interface LoginResult {
     providedIn: 'root'
 })
 export class LoginService {
+    // URL base del backend.
     private readonly url: string;
 
     constructor(private _http: HttpClient) {
         this.url = GLOBAL.url;
     }
 
+    // Envia credenciales al endpoint de login.
     login(correo: string, contrasena: string) {
         let headers = { 'headers': { 'Content-Type': 'application/json' } };
         return this._http.post(this.url + 'login', { "correo": correo, "contrasena": contrasena }, headers).pipe(

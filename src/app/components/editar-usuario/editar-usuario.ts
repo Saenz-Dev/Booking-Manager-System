@@ -13,6 +13,7 @@ import { UserService } from '../../services/users.service';
     styleUrl: './editar-usuario.css'
 })
 export class EditarUsuarioComponent implements OnInit {
+    // Notifica al panel cuando cambia el nombre mostrado.
     @Output() profileUpdated = new EventEmitter<{ nombres: string; apellidos: string }>();
 
     isEditingProfile = false;
@@ -71,6 +72,7 @@ export class EditarUsuarioComponent implements OnInit {
         this.cargarPerfilUsuario();
     }
 
+    // Guarda cambios del perfil en backend y en sesión local.
     guardarPerfil(): void {
         if (!this.profileUserId) {
             this._notificacionesService.warning('No se encontró el usuario de la sesión.', 'Perfil');

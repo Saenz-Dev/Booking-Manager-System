@@ -1,5 +1,6 @@
 import { Cuenta } from "./cuenta";
 
+// Modelo principal de usuario en la aplicación.
 export class Usuario {
     constructor(
         public id: number,

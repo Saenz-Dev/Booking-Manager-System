@@ -15,6 +15,7 @@ type TabName = 'reservar' | 'historial' | 'facturas' | 'perfil';
   styleUrl: './panel-inicio.css'
 })
 export class PanelInicio implements OnInit {
+  // Pestaña activa del panel.
   activeTab: TabName = 'reservar';
   usuarioSesion = 'Usuario';
   usuarioIniciales = 'US';
@@ -29,6 +30,7 @@ export class PanelInicio implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Verifica sesión y carga nombre del usuario.
     const token = localStorage.getItem('token');
     if (!token) {
       this._notificacionesService.warning('Debe iniciar sesión', 'Sesión');
