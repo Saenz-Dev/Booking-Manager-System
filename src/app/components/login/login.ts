@@ -51,19 +51,19 @@ export class Login implements OnInit {
     }
 
     this._loginService.login(this.email, this.password).subscribe((result: any) => {
-      if (result.code === 200) {
-
+      if (result.status == 200) {
+        console.log('Entra');
+        console.log('Login exitoso:', result);
         this.error = "";
         this._notificacionesService.success('Bienvenido', 'Éxito');
-        localStorage.setItem('cuenta', result.data.correo);
-        localStorage.setItem('id_usuario', result.data.id_usuario);
-        localStorage.setItem('token', result.data.token);
-        localStorage.setItem('id_cuenta', result.data.id_cuenta);
-        this._userService.getUsuarioId(localStorage.getItem('id_usuario') ?? '').subscribe((userResult: any) => {
-          if (userResult.code === 200) {
-            console.log("Desde aqui:" + userResult);
-            localStorage.setItem('nombres', userResult.data.nombres);
-            localStorage.setItem('apellidos', userResult.data.apellidos);
+        console.log(result);
+        localStorage.setItem('cuenta', result.usuario.correo);
+        localStorage.setItem('id_usuario', result.usuario.id_usuario);
+        localStorage.setItem('token', result.token);
+        this._userService.getUsuarioId(localStorage.getItem('cuenta') ?? '').subscribe((userResult: any) => {
+          if (userResult.status == 200) {
+            localStorage.setItem('nombres', userResult.nombres);
+            localStorage.setItem('apellidos', userResult.apellidos);
             this.router.navigate(['/inicio']);
           }
         });

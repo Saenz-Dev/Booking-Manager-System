@@ -39,16 +39,13 @@ export class UserService {
         )
     }
 
-    getUsuarioId(id_usuario: string) {
+    getUsuarioId(correo: string) {
         let params = {
-            'id_usuario': id_usuario
+            'correo': correo
         }
         console.log(params);
         return this._http.get(this.url + 'usuarios', { params }).pipe(
-            map(response => {
-                console.log(response);
-                return response
-            })
+            map(response => { return response })
         )
     }
 
