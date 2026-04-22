@@ -16,8 +16,17 @@ export class CuentasService {
         this.url = GLOBAL.url;
     }
 
+    getCuentaCorreoSinToken(correo: string) {
+        let params = {
+            'correo': correo
+        }
+        return this._http.get(this.url + 'usuarios', { params }).pipe(
+            map(response => { return response })
+        );
+    }
+
     getCuentasSinToken() {
-        return this._http.get(this.url + 'registrar_cuenta').pipe(
+        return this._http.get(this.url + 'usuarios').pipe(
             map(response => {
                 // console.log('Entra');
                 console.log(response);

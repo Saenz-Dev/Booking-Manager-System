@@ -14,7 +14,7 @@ import { catchError, map, of, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-registrar',
-  imports: [ReactiveFormsModule, NgIf, RouterLink, ],
+  imports: [ReactiveFormsModule, NgIf, RouterLink,],
   templateUrl: './registrar.html',
   providers: [UserService, CuentasService],
   styleUrl: './registrar.css'
@@ -53,19 +53,19 @@ export class Registrar {
   // Arma el payload final usando los datos del formulario.
   getBodyUsuario() {
     const form = this.registroForm.value;
-
-    this.usuario.nombres = form.nombres;
-    this.usuario.apellidos = form.apellidos;
-    this.usuario.tipo_documento = form.tipo_documento;
-    this.usuario.numero_documento = form.numero_documento;
-    this.usuario.fecha_nacimiento = new Date(form.fecha_nacimiento);
-    this.usuario.ciudad = form.ciudad;
-    this.usuario.telefono = form.telefono;
-    this.usuario.cuenta.correo = form.correo;
-    this.usuario.cuenta.contrasena = form.contrasena;
-    this.usuario.estado = 1;
-    this.usuario.id_rol = 2;
-    return this.usuario;
+    return {
+      nombres: form.nombres,
+      apellidos: form.apellidos,
+      tipo_documento: form.tipo_documento,
+      numero_documento: form.numero_documento,
+      fecha_nacimiento: form.fecha_nacimiento,
+      ciudad: form.ciudad,
+      telefono: form.telefono,
+      correo: form.correo,
+      contrasena: form.contrasena,
+      estado: 1,
+      id_rol: 2
+    };
   }
 
   ngOnInit() {
@@ -104,18 +104,12 @@ export class Registrar {
 
       const correoIngresado = String(control.value).trim().toLowerCase();
 
-      return this._cuentasService.getCuentasSinToken().pipe(
+      return this._cuentasService.getCuentaCorreoSinToken(correoIngresado).pipe(
         map((response: any) => {
-          if (!response || !response.data) return null;
-          console.log(response.data);
-          const cuentas: Cuenta[] = response.data;
-          
-          const existe = cuentas.some(c =>
-            String(c.correo).trim().toLowerCase() === correoIngresado
-          );
-          console.log(existe);
-
-          return existe ? { correoExistente: true } : null;
+          if (response.status == 200) {
+            return correoIngresado === response.correo ? { correoExistente: true } : null;
+          }
+          return null;
         }),
         catchError(() => of(null))
       );
@@ -130,16 +124,10 @@ export class Registrar {
 
       return this._userService.getUsuarioSinToken(Number(numero_documento)).pipe(
         map((response: any) => {
-          if (!response || !response.data) return null;
-          const usuarios: Usuario[] = [];
-          usuarios.push(response.data);
-          const existe = usuarios.some(c =>
-            String(c.numero_documento).trim().toLowerCase() === numero_documento
-          );
-          console.log("PASA")
-          console.log(existe);
-
-          return existe ? { numero_documentoExistente: true } : null;
+            if (response.status == 200) {
+            return numero_documento === response.numero_documento ? { numero_documentoExistente: true } : null;
+          }
+          return null;
         }),
         catchError(() => of(null))
       );

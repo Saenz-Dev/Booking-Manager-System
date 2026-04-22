@@ -21,7 +21,7 @@ export class UserService {
     }
 
     getUsuariosSinToken() {
-        return this._http.get(this.url + 'usuario_sin_token').pipe(
+        return this._http.get(this.url + 'usuarios').pipe(
             map(response => { return response })
         )
     }
@@ -29,12 +29,11 @@ export class UserService {
 
     getUsuarioSinToken(numero_identificacion: number) {
         let params = {
-            'id': numero_identificacion
+            'numero_documento': numero_identificacion
         }
         console.log(params);
-        return this._http.get(this.url + 'usuario_sin_token', { params }).pipe(
+        return this._http.get(this.url + 'usuarios', { params }).pipe(
             map(response => {
-                console.log("response: " + response);
                 return response
             })
         )
@@ -45,7 +44,7 @@ export class UserService {
             'id_usuario': id_usuario
         }
         console.log(params);
-        return this._http.get(this.url + 'usuario_sin_token', { params }).pipe(
+        return this._http.get(this.url + 'usuarios', { params }).pipe(
             map(response => {
                 console.log(response);
                 return response
@@ -73,30 +72,30 @@ export class UserService {
         )
     }
 
-    addUsuarioSinToken(usuario: Usuario) {
-        let body = {
-            'nombres': usuario.nombres,
-            'apellidos': usuario.apellidos,
-            'tipo_documento': usuario.tipo_documento,
-            'numero_documento': usuario.numero_documento,
-            'telefono': usuario.telefono,
-            'ciudad': usuario.ciudad,
-            'fecha_nacimiento': usuario.fecha_nacimiento,
-            'estado': usuario.estado,
-            'id_rol': usuario.id_rol,
-            'cuenta': {
-                'correo': usuario.cuenta.correo,
-                'contrasena': usuario.cuenta.contrasena,
-                'estado_sesion': usuario.cuenta.estado_sesion
-            }
-        }
+    addUsuarioSinToken(usuario: any) {
+        // let body = {
+        //     'nombres': usuario.nombres,
+        //     'apellidos': usuario.apellidos,
+        //     'tipo_documento': usuario.tipo_documento,
+        //     'numero_documento': usuario.numero_documento,
+        //     'telefono': usuario.telefono,
+        //     'ciudad': usuario.ciudad,
+        //     'fecha_nacimiento': usuario.fecha_nacimiento,
+        //     'estado': usuario.estado,
+        //     'id_rol': usuario.id_rol,
+        //     'cuenta': {
+        //         'correo': usuario.cuenta.correo,
+        //         'contrasena': usuario.cuenta.contrasena,
+        //         'estado_sesion': usuario.cuenta.estado_sesion
+        //     }
+        // }
 
         let options = {
             'headers': {
                 'Content-Type': 'application/json'
             }
         }
-        return this._http.post(this.url + 'usuario_sin_token', body, options).pipe(
+        return this._http.post(this.url + 'usuarios', usuario, options).pipe(
             map(response => { return response })
         );
     }
@@ -119,7 +118,7 @@ export class UserService {
             'id': numero_identificacion
         }
         console.log(params);
-        return this._http.get(this.url + 'usuario', { params }).pipe(
+        return this._http.get(this.url + 'usuarios', { params }).pipe(
             map(response => { return response })
         )
     }
@@ -149,37 +148,8 @@ export class UserService {
             // new HttpHeaders({ 'Authorization': token }),
 
         }
-        return this._http.post(this.url + 'usuario', body, options).pipe(
+        return this._http.post(this.url + 'usuarios', body, options).pipe(
             map(response => { return response })
         );
     }
-
-    // editPerson(user: User, id: any, token: any) {
-    //     let body = {
-    //         'id': id,
-    //         'user': user.user,
-    //         'password': user.password,
-    //         'keyAPI': user.keyAPI,
-    //         'roles': 2,
-    //     }
-    //     let options = {
-    //         'headers': new HttpHeaders({ 'Authorization': token }),
-    //     }
-    //     return this._http.put(this.url + 'users', body, options).pipe(
-    //         map(response => { return response })
-    //     );
-    // }
-
-    // deletePerson(id: any, token: any) {
-    //     let body = {
-    //         'id': id
-    //     }
-    //     let options = {
-    //         'headers': new HttpHeaders({ 'Authorization': token }),
-    //         'body': body
-    //     }
-    //     return this._http.delete(this.url + 'users', options).pipe(
-    //         map(response => { return response })
-    //     );
-    // }
 }
