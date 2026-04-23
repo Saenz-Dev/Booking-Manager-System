@@ -89,9 +89,7 @@
             <label>Tipo de documento</label>
             <select formControlName="tipoDocumento">
                 <option value="CC">CC</option>
-                <option value="RC">RC</option>
                 <option value="CE">CE</option>
-                <option value="PA">PA</option>
             </select>
             <small class="field-error"
                 *ngIf="isEditingProfile && tipoDocumentoControl?.touched && tipoDocumentoControl?.hasError('required')">Selecciona

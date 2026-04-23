@@ -151,11 +151,8 @@ export class EditarUsuarioComponent implements OnInit {
 
             return this._userService.getUsuarioSinToken(Number(numeroIngresado)).pipe(
                 map((response: any): ValidationErrors | null => {
-                    if (!response?.data) {
-                        return null;
-                    }
 
-                    const usuarioEncontrado = response.data;
+                    const usuarioEncontrado = response;
                     const mismoDocumento = String(usuarioEncontrado.numero_documento ?? '').trim().toLowerCase() === numeroIngresado;
                     const esMismoUsuario = String(usuarioEncontrado.id_usuario ?? '') === String(this.profileUserId ?? '');
 
@@ -187,14 +184,15 @@ export class EditarUsuarioComponent implements OnInit {
         }
 
         this.isLoadingProfile = true;
-        this._userService.getUsuarioId(this.profileUserId).subscribe({
+        this._userService.getUsuarioId(localStorage.getItem('cuenta') ?? '').subscribe({
             next: (userResult: any) => {
+                console.log("Resultado del usuario: " , userResult);
                 this.isLoadingProfile = false;
-                if (userResult?.code !== 200 || !userResult?.data) {
+                if (userResult?.status !== 200 || !userResult) {
                     return;
                 }
 
-                const usuario = userResult.data;
+                const usuario = userResult;
                 this.profileData = {
                     nombres: usuario.nombres ?? '',
                     apellidos: usuario.apellidos ?? '',

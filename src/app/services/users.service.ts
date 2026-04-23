@@ -51,14 +51,11 @@ export class UserService {
 
     // Actualiza datos de perfil del usuario actual.
     actualizarUsuarioId(id_usuario: string, datos: any) {
-        let params = {
-            'id': id_usuario
-        }
+        datos.id_usuario = id_usuario;
         let options = {
-            params,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': localStorage.getItem('token') ?? ''
+                'Authorization': 'Bearer ' + (localStorage.getItem('token') ?? '')
             }
         }
 
