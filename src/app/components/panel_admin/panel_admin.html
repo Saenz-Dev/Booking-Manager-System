@@ -1,191 +1,79 @@
-<div class="admin-layout" [class.sidebar-collapsed]="sidebarColapsado">
-<!-- SIDEBAR -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<aside class="sidebar" [class.collapsed]="sidebarColapsado">
-
-<button class="toggle" (click)="toggleSidebar()">
-☰
-</button>
-
-<nav>
-
-<div class="menu-item"
-(click)="cambiarSeccion('dashboard')">
-Dashboard
-</div>
-
-<div class="menu-item"
-(click)="cambiarSeccion('alojamientos')">
-Alojamientos
-</div>
-
-<div class="menu-item">
-Reservas
-</div>
-
-<div class="menu-item">
-Usuarios
-</div>
-
-<div class="menu-item">
-Reportes
-</div>
-
-</nav>
-
-</aside>
-
-<!-- CONTENIDO -->
-
-<main class="main">
-
-<header class="header">
-
-<button class="mobile-menu"
-(click)="toggleSidebar()">
-☰
-</button>
-
-<h2>Panel Administrador</h2>
-
-</header>
-
-<!-- DASHBOARD -->
-
-<section *ngIf="seccionActual==='dashboard'" class="dashboard">
-
-<div class="card">
-<h4>Total alojamientos</h4>
-<p>{{totalAlojamientos}}</p>
-</div>
-
-<div class="card">
-<h4>Capacidad total</h4>
-<p>{{capacidadTotal}}</p>
-</div>
-
-</section>
-
-<!-- GESTION -->
-
-<section *ngIf="seccionActual==='alojamientos'">
-
-<div class="section-header">
-
-<h2>Gestión de alojamientos</h2>
-
-</div>
-
-<!-- BUSCADOR -->
-
-<div class="search-box">
-
-<input
-type="text"
-placeholder="Buscar alojamiento por nombre o ubicación..."
-[(ngModel)]="busqueda"
-/>
-</div>
-
-<button class="btn-primary"
-(click)="mostrarCrear()">
-Crear alojamiento
-</button>
-
-<!-- FORM -->
-
-<div class="form-panel"
-*ngIf="mostrarFormulario">
-
-<h3 class="form-title">
-Datos del Alojamiento
-</h3>
-
-<div class="form-group">
-<label>Nombre</label>
-<input [(ngModel)]="nuevoAlojamiento.nombre">
-</div>
-
-<div class="form-group">
-<label>Ubicación</label>
-<input [(ngModel)]="nuevoAlojamiento.ubicacion">
-</div>
-
-<div class="form-group">
-<label>Precio</label>
-<input type="number"
-[(ngModel)]="nuevoAlojamiento.precio">
-</div>
-
-<div class="form-group">
-<label>Capacidad</label>
-<input type="number"
-[(ngModel)]="nuevoAlojamiento.capacidad">
-</div>
-
-<div class="form-group full">
-<label>Descripción</label>
-<textarea
-[(ngModel)]="nuevoAlojamiento.descripcion">
-</textarea>
-</div>
-
-<button class="btn-primary-guardar"
-(click)="guardarAlojamiento()">
-
-{{editando ? 'Actualizar alojamiento' : 'Guardar alojamiento'}}
-
-</button>
-
-</div>
-
-<!-- TABLA -->
-
-<table class="table-admin">
-
-<thead>
-
-<tr>
-<th>Nombre</th>
-<th>Ubicación</th>
-<th>Precio</th>
-<th>Capacidad</th>
-<th>Acciones</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr *ngFor="let a of alojamientosFiltrados; let i=index">
-
-<td>{{a.nombre}}</td>
-<td>{{a.ubicacion}}</td>
-<td>{{a.precio}}</td>
-<td>{{a.capacidad}}</td>
-
-<td>
-
-<button class="btn-edit"
-(click)="editarAlojamiento(i)">
-Editar
-</button>
-
-<button class="btn-delete"
-(click)="eliminarAlojamiento(i)">
-Eliminar
-</button>
-
-</td>
-
-</tr>
-
-</tbody>
-
-</table>
-
-</section>
-
-</main>
-
-</div>
+<body>
+    <div class="admin-layout" [class.sidebar-collapsed]="sidebarColapsado"> <!-- SIDEBAR -->
+        <aside class="sidebar" [class.collapsed]="sidebarColapsado"> <button class="toggle" (click)="toggleSidebar()"> ☰
+            </button>
+            <nav>
+                <div class="menu-item" (click)="cambiarSeccion('dashboard')"> <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span> </div>
+                <div class="menu-item" (click)="cambiarSeccion('alojamientos')"> <i class="fa-solid fa-bed"></i>
+                    <span>Alojamientos</span> </div>
+                <div class="menu-item" (click)="cambiarSeccion('reservas')"> <i class="fa-solid fa-calendar-check"></i>
+                    <span>Reservas</span> </div>
+                <div class="menu-item" (click)="cambiarSeccion('usuarios')"> <i class="fa-solid fa-users"></i>
+                    <span>Usuarios</span> </div>
+                <div class="menu-item" (click)="cambiarSeccion('Reportes')"> <i class="fa-solid fa-gear"></i>
+                    <span>Reportes</span> </div>
+            </nav>
+        </aside> <!-- CONTENIDO -->
+        <main class="main">
+            <header class="header"> <button class="mobile-menu" (click)="toggleSidebar()"> ☰ </button>
+                <h2>Panel Administrador</h2>
+            </header> <!-- DASHBOARD -->
+            <section *ngIf="seccionActual==='dashboard'" class="dashboard">
+                <div class="card">
+                    <h4>Total alojamientos</h4>
+                    <p>{{totalAlojamientos}}</p>
+                </div>
+                <div class="card">
+                    <h4>Capacidad total</h4>
+                    <p>{{capacidadTotal}}</p>
+                </div>
+            </section> <!-- GESTION -->
+            <section *ngIf="seccionActual==='alojamientos'">
+                <div class="section-header">
+                    <h2>Gestión de alojamientos</h2>
+                </div> <!-- BUSCADOR --> <button class="btn-primary" (click)="mostrarCrear()"> Crear alojamiento
+                </button>
+                <div class="search-box"> <input type="text" placeholder="Buscar alojamiento por nombre o ubicación..."
+                        [(ngModel)]="busqueda" /> </div> <!-- FORM -->
+                <div class="form-panel" *ngIf="mostrarFormulario">
+                    <h3 class="form-title"> Datos del Alojamiento </h3>
+                    <div class="form-group"> <label>Nombre</label> <input [(ngModel)]="nuevoAlojamiento.nombre"> </div>
+                    <div class="form-group"> <label>Ubicación</label> <input [(ngModel)]="nuevoAlojamiento.ubicacion">
+                    </div>
+                    <div class="form-group"> <label>Precio</label> <input type="number"
+                            [(ngModel)]="nuevoAlojamiento.precio"> </div>
+                    <div class="form-group"> <label>Capacidad</label> <input type="number"
+                            [(ngModel)]="nuevoAlojamiento.capacidad"> </div>
+                    <div class="form-group full"> <label>Descripción</label> <textarea
+                            [(ngModel)]="nuevoAlojamiento.descripcion"> </textarea> </div> <button
+                        class="btn-primary-guardar" (click)="guardarAlojamiento()"> {{editando ? 'Actualizar
+                        alojamiento' : 'Guardar alojamiento'}} </button>
+                </div> <!-- TABLA -->
+                <table class="table-admin">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Ubicación</th>
+                            <th>Precio</th>
+                            <th>Capacidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let a of alojamientosFiltrados; let i=index">
+                            <td>{{a.nombre}}</td>
+                            <td>{{a.ubicacion}}</td>
+                            <td>{{a.precio}}</td>
+                            <td>{{a.capacidad}}</td>
+                            <td> <button class="btn-edit" (click)="editarAlojamiento(i)"> Editar </button> <button
+                                    class="btn-delete" (click)="eliminarAlojamiento(i)"> X </button> </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</body>

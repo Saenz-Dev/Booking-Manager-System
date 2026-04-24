@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 interface Alojamiento {
+  id?: number;
   nombre: string;
   ubicacion: string;
   precio: number;
@@ -17,13 +19,18 @@ interface Alojamiento {
   templateUrl: './panel_admin.html',
   styleUrl: './panel_admin.css'
 })
-export class PanelAdmin {
+
+export class PanelAdmin implements OnInit {
+
+  API = "http://localhost/backend/";
+
+  constructor(private http: HttpClient) {}
 
   seccionActual = 'dashboard';
 
   mostrarFormulario = false;
   editando = false;
-  indexEditar: number | null = null;
+  idEditar: number | null = null;
 
   sidebarColapsado = false;
 
@@ -38,6 +45,21 @@ export class PanelAdmin {
     capacidad: 0,
     descripcion: ''
   };
+
+  ngOnInit(){
+    this.cargarAlojamientos();
+  }
+
+  /* =========================
+     OBTENER DATOS
+  ========================= */
+
+  cargarAlojamientos(){
+    this.http.get<Alojamiento[]>(this.API + "obtener_alojamientos.php")
+    .subscribe(data=>{
+      this.alojamientos = data;
+    });
+  }
 
   cambiarSeccion(seccion: string) {
     this.seccionActual = seccion;
@@ -54,6 +76,10 @@ export class PanelAdmin {
     this.resetForm();
   }
 
+  /* =========================
+     GUARDAR / ACTUALIZAR
+  ========================= */
+
   guardarAlojamiento() {
 
     if (
@@ -67,32 +93,64 @@ export class PanelAdmin {
       return;
     }
 
-    if (this.editando && this.indexEditar !== null) {
-      this.alojamientos[this.indexEditar] = { ...this.nuevoAlojamiento };
-    } else {
-      this.alojamientos.push({ ...this.nuevoAlojamiento });
+    if(this.editando){
+
+      this.http.post(this.API + "editar_alojamiento.php", this.nuevoAlojamiento)
+      .subscribe(()=>{
+        this.cargarAlojamientos();
+        this.resetForm();
+      });
+
+    }else{
+
+      this.http.post(this.API + "crear_alojamiento.php", this.nuevoAlojamiento)
+      .subscribe(()=>{
+        this.cargarAlojamientos();
+        this.resetForm();
+      });
+
     }
 
-    this.resetForm();
     this.mostrarFormulario = false;
   }
 
-  editarAlojamiento(index: number) {
-    this.nuevoAlojamiento = { ...this.alojamientos[index] };
-    this.indexEditar = index;
+  /* =========================
+     EDITAR
+  ========================= */
+
+  editarAlojamiento(a: Alojamiento) {
+
+    this.nuevoAlojamiento = { ...a };
+
+    this.idEditar = a.id || null;
+
     this.editando = true;
+
     this.mostrarFormulario = true;
+
   }
 
-  eliminarAlojamiento(index: number) {
+  /* =========================
+     ELIMINAR
+  ========================= */
 
-    if (confirm("¿Eliminar alojamiento?")) {
-      this.alojamientos.splice(index, 1);
+  eliminarAlojamiento(id:number){
+
+    if(confirm("¿Eliminar alojamiento?")){
+
+      this.http.get(this.API + "eliminar_alojamiento.php?id="+id)
+      .subscribe(()=>{
+        this.cargarAlojamientos();
+      });
+
     }
 
   }
 
+  /* ========================= */
+
   resetForm() {
+
     this.nuevoAlojamiento = {
       nombre: '',
       ubicacion: '',
@@ -100,7 +158,10 @@ export class PanelAdmin {
       capacidad: 0,
       descripcion: ''
     };
+
   }
+
+  /* ========================= */
 
   get alojamientosFiltrados() {
 
@@ -110,6 +171,7 @@ export class PanelAdmin {
       a.nombre.toLowerCase().includes(this.busqueda.toLowerCase()) ||
       a.ubicacion.toLowerCase().includes(this.busqueda.toLowerCase())
     );
+
   }
 
   get totalAlojamientos() {
