@@ -15,18 +15,9 @@
 </div>
 
 <div id="form-room" *ngIf="selectedType === 'room'">
-  <div class="form-box">
-    <h3>Detalles de la habitación</h3>
+  <div class="form-box" *ngIf="reservationStep === 1">
+    <h3>Datos iniciales de la reserva</h3>
     <div class="form-row">
-      <div class="field">
-        <label>Tipo de habitaciones</label>
-        <select #roomTypeSelect (change)="onRoomTypeChange(roomTypeSelect.value, roomTypeSelect.options[roomTypeSelect.selectedIndex].text)">
-          <option *ngFor="let habitacion of habitaciones" [value]="getPrecioHabitacion(habitacion)">
-            {{ getNombreHabitacion(habitacion) }} - {{ formatMoney(getPrecioHabitacion(habitacion)) }}/noche
-          </option>
-          <option *ngIf="habitaciones.length === 0" [value]="roomRate">Habitación - {{ formatMoney(roomRate) }}/noche</option>
-        </select>
-      </div>
       <div class="field">
         <label>Número de huéspedes</label>
         <select [value]="numeroHuespedes" (change)="onGuestCountChange($any($event.target).value)">
@@ -35,32 +26,82 @@
           </option>
         </select>
       </div>
+      <div class="field">
+        <label>Check-in</label>
+        <input type="date" id="checkin" [min]="getCheckInMin()" [value]="checkIn" #checkInInput (change)="onCheckInChange(checkInInput.value)" />
+      </div>
     </div>
     <div class="form-row">
       <div class="field">
-        <label>Check-in</label>
-        <input type="date" id="checkin" [value]="checkIn" #checkInInput (change)="onCheckInChange(checkInInput.value)" />
-      </div>
-      <div class="field">
         <label>Check-out</label>
-        <input type="date" id="checkout" [value]="checkOut" #checkOutInput (change)="onCheckOutChange(checkOutInput.value)" />
+        <input type="date" id="checkout" [min]="getCheckOutMin()" [value]="checkOut" #checkOutInput (change)="onCheckOutChange(checkOutInput.value)" />
       </div>
-    </div>
-    <div class="form-row full">
       <div class="field">
-        <label>Solicitudes especiales</label>
-        <input type="text" placeholder="Cama extra, vista al jardín, piso alto..." />
+        <label>Fechas válidas</label>
+        <p class="helper-text">Solo puedes elegir entrada desde hoy y salida después de la entrada.</p>
       </div>
     </div>
+    <button class="btn-primary" type="button" (click)="goToNextStep()" [disabled]="!canContinue() || isCheckingAvailability || isWaitingStepTransition">
+      {{ (isCheckingAvailability || isWaitingStepTransition) ? 'Validando disponibilidad...' : 'Siguiente' }}
+    </button>
   </div>
-  <div class="form-box" id="room-summary" *ngIf="roomSummaryVisible">
-    <h3>Resumen</h3>
-    <div class="summary-line"><span>{{ roomSummary.type }}</span><span>{{ roomSummary.rate }}</span></div>
-    <div class="summary-line"><span>{{ roomSummary.nights }}</span><span>{{ roomSummary.sub }}</span></div>
-    <div class="summary-line"><span>Impuestos (19%)</span><span>{{ roomSummary.tax }}</span></div>
-    <div class="summary-line"><span>Total</span><span>{{ roomSummary.total }}</span></div>
+
+  <div class="form-box" *ngIf="reservationStep === 2">
+    <div class="step-header">
+      <h3>Selecciona tu cabaña</h3>
+      <button class="btn-link" type="button" (click)="goBackToStepOne()">Volver</button>
+    </div>
+    <div class="selected-data-box">
+      <div class="selected-data-item">
+        <span class="selected-data-label">Personas</span>
+        <strong>{{ numeroHuespedes }} {{ numeroHuespedes === 1 ? 'huésped' : 'huéspedes' }}</strong>
+      </div>
+      <div class="selected-data-item">
+        <span class="selected-data-label">Check-in</span>
+        <strong>{{ checkIn }}</strong>
+      </div>
+      <div class="selected-data-item">
+        <span class="selected-data-label">Check-out</span>
+        <strong>{{ checkOut }}</strong>
+      </div>
+    </div>
+
+    <div class="room-cards-grid" *ngIf="habitaciones.length > 0; else noRoomsTemplate">
+      <button class="room-card" type="button" *ngFor="let habitacion of habitaciones" [class.selected]="isRoomSelected(habitacion)" [class.unavailable]="!isHabitacionDisponibleParaHuespedes(habitacion) || !isHabitacionDisponiblePorFecha(habitacion)" [disabled]="!isHabitacionDisponibleParaHuespedes(habitacion) || !isHabitacionDisponiblePorFecha(habitacion)" (click)="selectRoom(habitacion)">
+        <div class="room-card-body">
+          <h4>{{ getNombreHabitacion(habitacion) }}</h4>
+          <div class="room-image-wrap">
+            <img class="room-image" [src]="getImagenHabitacion(habitacion)" [alt]="getNombreHabitacion(habitacion)" />
+            <span class="room-check" [class.active]="isRoomSelected(habitacion)">
+              <span class="room-check-dot"></span>
+            </span>
+          </div>
+          <p>{{ getDescripcionHabitacion(habitacion) }}</p>
+          <span class="room-capacity">Capacidad: {{ getCapacidadHabitacion(habitacion) }} personas</span>
+          <span class="room-warning" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">No disponible para {{ numeroHuespedes }} huéspedes</span>
+          <span class="room-warning" *ngIf="isHabitacionDisponibleParaHuespedes(habitacion) && !isHabitacionDisponiblePorFecha(habitacion)">No disponible en el rango de fechas seleccionado</span>
+          <strong>{{ formatMoney(getPrecioHabitacion(habitacion)) }}/noche</strong>
+        </div>
+      </button>
+    </div>
+
+    <ng-template #noRoomsTemplate>
+      <div class="form-box summary-box">
+        <p class="helper-text">No hay cabañas disponibles en este momento.</p>
+      </div>
+    </ng-template>
+
+    <div class="form-box summary-box" id="room-summary" *ngIf="roomSummaryVisible">
+      <h3>Resumen</h3>
+      <div class="summary-line"><span>{{ roomSummary.type }}</span><span>{{ roomSummary.rate }}</span></div>
+      <div class="summary-line"><span>{{ roomSummary.nights }}</span><span>{{ roomSummary.sub }}</span></div>
+      <div class="summary-line"><span>Impuestos (19%)</span><span>{{ roomSummary.tax }}</span></div>
+      <div class="summary-line"><span>Total</span><span>{{ roomSummary.total }}</span></div>
+    </div>
+    <button class="btn-primary" type="button" (click)="submitRoomReservation()" [disabled]="!canConfirmRoomReservation() || isSubmittingReservation || isCheckingAvailability">
+      {{ isSubmittingReservation ? 'Guardando reserva...' : (isCheckingAvailability ? 'Validando disponibilidad...' : 'Confirmar reserva de habitación') }}
+    </button>
   </div>
-  <button class="btn-primary" type="button" (click)="confirmReservation('habitación')">Confirmar reserva de habitación</button>
 </div>
 
 <div id="form-table" *ngIf="selectedType === 'table'">

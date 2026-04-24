@@ -16,11 +16,20 @@ export class HabitacionesService {
         this.url = GLOBAL.url;
     }
 
+    private buildAuthHeader(): string {
+        const rawToken = (localStorage.getItem('token') ?? '').trim();
+        if (!rawToken) {
+            return '';
+        }
+
+        return /^Bearer\s+/i.test(rawToken) ? rawToken : `Bearer ${rawToken}`;
+    }
+
     // Obtiene el catálogo de habitaciones desde el backend.
     getHabitaciones() {
         const options = {
             headers: {
-                'Authorization': localStorage.getItem('token') ?? ''
+                'Authorization': this.buildAuthHeader()
             }
         };
         return this._http.get(this.url + 'cabanias', options).pipe(
@@ -51,6 +60,79 @@ export class HabitacionesService {
         };
 
         return this._http.post(this.url + 'cabanias', datos, options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    postReservaCabania(datos: any) {
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.post(this.url + 'reservas', datos, options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    getReservasByUsuario(idUsuario: string) {
+        const params = {
+            id_usuario: idUsuario
+        };
+
+        const options = {
+            params,
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.get(this.url + 'reservas', options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    deleteReserva(idReserva: string) {
+        const params = {
+            id_reserva: idReserva
+        };
+
+        const options = {
+            params,
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.delete(this.url + 'reservas', options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    getDisponibilidadReserva(fechaHoraInicio: string, fechaHoraFin: string) {
+        const params = {
+            fecha_hora_inicio: fechaHoraInicio,
+            fecha_hora_fin: fechaHoraFin
+        };
+
+        const options = {
+            params,
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.get(this.url + 'reservas/disponibilidad', options).pipe(
             map(response => {
                 return response;
             })

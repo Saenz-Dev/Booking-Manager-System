@@ -101,6 +101,24 @@
   margin-bottom: 1rem;
 }
 
+.step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 1rem;
+}
+
+.btn-link {
+  border: none;
+  background: transparent;
+  color: #9d7a43;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -142,6 +160,167 @@
   box-shadow: 0 0 0 4px rgba(184, 149, 90, 0.12);
 }
 
+.helper-text {
+  font-size: 13px;
+  color: var(--color-text-secondary, #685f57);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+.selected-data-box {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.selected-data-item {
+  background: rgba(184, 149, 90, 0.08);
+  border: 1px solid rgba(184, 149, 90, 0.2);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.selected-data-label {
+  font-size: 12px;
+  color: var(--color-text-secondary, #685f57);
+}
+
+.selected-data-item strong {
+  font-size: 14px;
+  color: var(--color-text-primary, #1f1a17);
+}
+
+.room-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.room-card {
+  border: 1px solid rgba(31, 26, 23, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(184, 149, 90, 0.35);
+  box-shadow: 0 10px 20px rgba(31, 26, 23, 0.08);
+}
+
+.room-card.selected {
+  border-color: #b8955a;
+  box-shadow: 0 10px 22px rgba(184, 149, 90, 0.2);
+}
+
+.room-card.unavailable {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.room-card.unavailable:hover {
+  transform: none;
+  border-color: rgba(31, 26, 23, 0.1);
+}
+
+.room-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 136px;
+  margin: 0 0 6px;
+  background: #ece7df;
+  border: 1px solid rgba(31, 26, 23, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+.room-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.room-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  background: rgba(31, 26, 23, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.room-check-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.room-check.active {
+  background: #b8955a;
+  border-color: #fff;
+}
+
+.room-check.active .room-check-dot {
+  background: #fff;
+}
+
+.room-card-body {
+  padding: 12px 12px 12px;
+}
+
+.room-card-body h4 {
+  font-size: 15px;
+  color: var(--color-text-primary, #1f1a17);
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.room-card-body p {
+  font-size: 13px;
+  color: var(--color-text-secondary, #685f57);
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.room-card-body strong {
+  font-size: 14px;
+  color: #9d7a43;
+  display: block;
+}
+
+.room-capacity {
+  display: block;
+  font-size: 12px;
+  color: #7a6d5c;
+  margin-bottom: 4px;
+}
+
+.room-warning {
+  display: block;
+  font-size: 12px;
+  color: #b33f3f;
+  margin-bottom: 6px;
+}
+
 .summary-line {
   display: flex;
   justify-content: space-between;
@@ -174,13 +353,32 @@
   box-shadow: 0 8px 18px rgba(184, 149, 90, 0.18);
 }
 
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .btn-primary:hover {
   opacity: 0.96;
   transform: translateY(-1px);
 }
 
+.summary-box {
+  margin-top: 0.25rem;
+}
+
 @media (max-width: 900px) {
   .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .step-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .selected-data-box {
     grid-template-columns: 1fr;
   }
 }

@@ -37,50 +37,30 @@
   <!-- PANEL: HISTORIAL -->
   <div class="panel" [class.active]="activeTab === 'historial'" id="panel-historial">
     <p class="section-title">Historial de reservas</p>
-    <div class="history-list">
-      <div class="reservation-row res-room">
+    <div class="history-list" *ngIf="!isLoadingHistorial && reservasHistorial.length > 0">
+      <div class="reservation-row res-room" *ngFor="let reserva of reservasHistorial">
         <div class="res-icon">🛏</div>
         <div class="res-info">
-          <strong>Suite — Hab. 412</strong>
-          <span>Check-in 14 jun · Check-out 17 jun · 3 noches · $726.000</span>
+          <strong>Reserva #{{ reserva.id_reserva }}</strong>
+          <span>{{ getResumenReserva(reserva) }}</span>
         </div>
-        <span class="res-status status-confirmed">Confirmada</span>
+        <span class="res-status" [class]="'res-status ' + getEstadoReservaClass(reserva.estado)">
+          {{ getEstadoReservaLabel(reserva.estado) }}
+        </span>
         <div class="res-actions">
-          <button class="btn-sm" (click)="showInvoice()">Factura</button>
-          <button class="btn-sm danger" (click)="showToast('Reserva cancelada')">Cancelar</button>
+          <button class="btn-sm danger" type="button" [disabled]="!puedeCancelarReserva(reserva)" (click)="abrirModalCancelarReserva(reserva)">
+            Cancelar reserva
+          </button>
         </div>
       </div>
-      <div class="reservation-row res-table">
-        <div class="res-icon">🍽</div>
-        <div class="res-info">
-          <strong>Mesa · Terraza · 2 personas</strong>
-          <span>Sábado 8 jun · 20:00 — Cena</span>
-        </div>
-        <span class="res-status status-confirmed">Confirmada</span>
-        <div class="res-actions">
-          <button class="btn-sm">Editar</button>
-          <button class="btn-sm danger" (click)="showToast('Reserva cancelada')">Cancelar</button>
-        </div>
-      </div>
-      <div class="reservation-row res-room">
-        <div class="res-icon">🛏</div>
-        <div class="res-info">
-          <strong>Habitación doble — Hab. 208</strong>
-          <span>Check-in 2 may · Check-out 4 may · 2 noches · $308.000</span>
-        </div>
-        <span class="res-status status-confirmed">Completada</span>
-        <div class="res-actions">
-          <button class="btn-sm" (click)="showInvoice()">Factura</button>
-        </div>
-      </div>
-      <div class="reservation-row res-table">
-        <div class="res-icon">🍽</div>
-        <div class="res-info">
-          <strong>Mesa · Salón principal · 4 personas</strong>
-          <span>Viernes 19 abr · 13:00 — Almuerzo</span>
-        </div>
-        <span class="res-status status-cancelled">Cancelada</span>
-      </div>
+    </div>
+
+    <div class="history-empty" *ngIf="isLoadingHistorial">
+      Cargando historial de reservas...
+    </div>
+
+    <div class="history-empty" *ngIf="!isLoadingHistorial && reservasHistorial.length === 0">
+      No tienes reservas registradas.
     </div>
   </div>
 
@@ -152,6 +132,19 @@
     <div class="logout-modal-actions">
       <button type="button" class="btn-sm" (click)="cancelarCerrarSesion()">Cancelar</button>
       <button type="button" class="btn-sm danger" (click)="cerrarSesion()">Sí, cerrar sesión</button>
+    </div>
+  </div>
+</div>
+
+<div class="logout-modal-backdrop" *ngIf="mostrarModalCancelarReserva" (click)="cerrarModalCancelarReserva()">
+  <div class="logout-modal" role="dialog" aria-modal="true" aria-labelledby="cancel-reservation-modal-title" (click)="$event.stopPropagation()">
+    <h3 id="cancel-reservation-modal-title">Cancelar reserva</h3>
+    <p>¿Seguro que deseas cancelar la reserva #{{ reservaSeleccionadaParaCancelar?.id_reserva }}?</p>
+    <div class="logout-modal-actions">
+      <button type="button" class="btn-sm" (click)="cerrarModalCancelarReserva()" [disabled]="isCancellingReserva">No, volver</button>
+      <button type="button" class="btn-sm danger" (click)="confirmarCancelarReserva()" [disabled]="isCancellingReserva">
+        {{ isCancellingReserva ? 'Cancelando...' : 'Sí, cancelar' }}
+      </button>
     </div>
   </div>
 </div>
