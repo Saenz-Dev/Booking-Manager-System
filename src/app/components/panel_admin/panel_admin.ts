@@ -1,16 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-
-interface Alojamiento {
-  id?: number;
-  nombre: string;
-  ubicacion: string;
-  precio: number;
-  capacidad: number;
-  descripcion: string;
-}
+import { AlojamientoService, Alojamiento } from '../../services/alojamiento';
 
 @Component({
   selector: 'app-panel-admin',
@@ -19,126 +10,96 @@ interface Alojamiento {
   templateUrl: './panel_admin.html',
   styleUrl: './panel_admin.css'
 })
+export class PanelAdminComponent implements OnInit {
 
-export class PanelAdmin implements OnInit {
-
-  API = "http://localhost/backend/";
-
-  constructor(private http: HttpClient) {}
+  constructor(private adminService: AlojamientoService) {}
 
   seccionActual = 'dashboard';
+  sidebarColapsado = false;
 
   mostrarFormulario = false;
   editando = false;
-  idEditar: number | null = null;
+  idEditar:number|null=null;
 
-  sidebarColapsado = false;
+  busqueda='';
 
-  busqueda = '';
+  alojamientos:Alojamiento[]=[];
 
-  alojamientos: Alojamiento[] = [];
-
-  nuevoAlojamiento: Alojamiento = {
-    nombre: '',
-    ubicacion: '',
-    precio: 0,
-    capacidad: 0,
-    descripcion: ''
+  nuevoAlojamiento:Alojamiento={
+    nombre:'',
+    ubicacion:'',
+    precio:0,
+    capacidad:0,
+    descripcion:''
   };
 
   ngOnInit(){
     this.cargarAlojamientos();
   }
 
-  /* =========================
-     OBTENER DATOS
-  ========================= */
-
   cargarAlojamientos(){
-    this.http.get<Alojamiento[]>(this.API + "obtener_alojamientos.php")
+
+    this.adminService.obtenerAlojamientos()
     .subscribe(data=>{
-      this.alojamientos = data;
+      this.alojamientos=data;
     });
+
   }
 
-  cambiarSeccion(seccion: string) {
-    this.seccionActual = seccion;
-    this.mostrarFormulario = false;
+  cambiarSeccion(seccion:string){
+    this.seccionActual=seccion;
+    this.mostrarFormulario=false;
   }
 
-  toggleSidebar() {
-    this.sidebarColapsado = !this.sidebarColapsado;
+  toggleSidebar(){
+    this.sidebarColapsado=!this.sidebarColapsado;
   }
 
-  mostrarCrear() {
-    this.mostrarFormulario = true;
+  mostrarCrear(){
     this.editando = false;
+    this.idEditar = null;
     this.resetForm();
+    this.mostrarFormulario=true;
   }
 
-  /* =========================
-     GUARDAR / ACTUALIZAR
-  ========================= */
+ guardarAlojamiento() {
+  if (this.editando && this.idEditar !== null) {
 
-  guardarAlojamiento() {
+    const datosEditar = { ...this.nuevoAlojamiento, id: this.idEditar };
 
-    if (
-      !this.nuevoAlojamiento.nombre ||
-      !this.nuevoAlojamiento.ubicacion ||
-      !this.nuevoAlojamiento.descripcion ||
-      this.nuevoAlojamiento.precio <= 0 ||
-      this.nuevoAlojamiento.capacidad <= 0
-    ) {
-      alert("Todos los campos son obligatorios");
-      return;
-    }
-
-    if(this.editando){
-
-      this.http.post(this.API + "editar_alojamiento.php", this.nuevoAlojamiento)
-      .subscribe(()=>{
+    this.adminService.editarAlojamiento(datosEditar)  // ← 1 solo argumento
+      .subscribe(() => {
         this.cargarAlojamientos();
+        this.mostrarFormulario = false;
+        this.editando = false;
+        this.idEditar = null;
         this.resetForm();
       });
 
-    }else{
-
-      this.http.post(this.API + "crear_alojamiento.php", this.nuevoAlojamiento)
-      .subscribe(()=>{
+  } else {
+    this.adminService.crearAlojamiento(this.nuevoAlojamiento)
+      .subscribe(() => {
         this.cargarAlojamientos();
+        this.mostrarFormulario = false;
         this.resetForm();
       });
-
-    }
-
-    this.mostrarFormulario = false;
   }
+}
 
-  /* =========================
-     EDITAR
-  ========================= */
+  editarAlojamiento(a:Alojamiento){
 
-  editarAlojamiento(a: Alojamiento) {
-
-    this.nuevoAlojamiento = { ...a };
-
-    this.idEditar = a.id || null;
-
-    this.editando = true;
-
-    this.mostrarFormulario = true;
+    this.nuevoAlojamiento={...a};
+    this.idEditar=a.id || null;
+    this.editando=true;
+    this.mostrarFormulario=true;
 
   }
-
-  /* =========================
-     ELIMINAR
-  ========================= */
 
   eliminarAlojamiento(id:number){
 
     if(confirm("¿Eliminar alojamiento?")){
 
-      this.http.get(this.API + "eliminar_alojamiento.php?id="+id)
+      this.adminService.eliminarAlojamiento(id)
       .subscribe(()=>{
         this.cargarAlojamientos();
       });
@@ -147,39 +108,37 @@ export class PanelAdmin implements OnInit {
 
   }
 
-  /* ========================= */
+  resetForm(){
 
-  resetForm() {
-
-    this.nuevoAlojamiento = {
-      nombre: '',
-      ubicacion: '',
-      precio: 0,
-      capacidad: 0,
-      descripcion: ''
+    this.nuevoAlojamiento={
+      nombre:'',
+      ubicacion:'',
+      precio:0,
+      capacidad:0,
+      descripcion:''
     };
 
+    this.editando = false;
+    this.idEditar = null;
   }
 
-  /* ========================= */
+  get alojamientosFiltrados(){
 
-  get alojamientosFiltrados() {
+    if(!this.busqueda) return this.alojamientos;
 
-    if (!this.busqueda) return this.alojamientos;
-
-    return this.alojamientos.filter(a =>
+    return this.alojamientos.filter(a=>
       a.nombre.toLowerCase().includes(this.busqueda.toLowerCase()) ||
       a.ubicacion.toLowerCase().includes(this.busqueda.toLowerCase())
     );
 
   }
 
-  get totalAlojamientos() {
+  get totalAlojamientos(){
     return this.alojamientos.length;
   }
 
-  get capacidadTotal() {
-    return this.alojamientos.reduce((acc, a) => acc + a.capacidad, 0);
+  get capacidadTotal(){
+    return this.alojamientos.reduce((acc,a)=>acc+a.capacidad,0);
   }
 
 }
