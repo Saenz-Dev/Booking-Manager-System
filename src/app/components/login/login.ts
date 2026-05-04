@@ -79,4 +79,8 @@ export class Login implements OnInit {
         this._notificacionesService.error(error.error.data, 'Error');
       });
   }
+
+  irARecuperacion(): void {
+    this.router.navigate(['/recuperar-contrasena']);
+  }
 }

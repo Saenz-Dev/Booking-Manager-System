@@ -81,6 +81,21 @@ export class HabitacionesService {
         );
     }
 
+    putReserva(datos: any) {
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.put(this.url + 'reservas', datos, options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
     getReservasByUsuario(idUsuario: string) {
         const params = {
             id_usuario: idUsuario
@@ -122,7 +137,8 @@ export class HabitacionesService {
     getDisponibilidadReserva(fechaHoraInicio: string, fechaHoraFin: string) {
         const params = {
             fecha_hora_inicio: fechaHoraInicio,
-            fecha_hora_fin: fechaHoraFin
+            fecha_hora_fin: fechaHoraFin,
+            estado: 0  // Solo reservas confirmadas bloquean disponibilidad
         };
 
         const options = {

@@ -80,6 +80,16 @@
     font-weight: 500;
 }
 
+.forgot-link {
+    border: none;
+    background: transparent;
+    color: #0d1b2a;
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+}
+
 /* BOTON */
 .login-btn {
     width: 100%;

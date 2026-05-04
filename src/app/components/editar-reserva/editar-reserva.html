@@ -1,0 +1,77 @@
+<div class="edit-reserva-shell">
+  <div class="step-header">
+    <h3>Modificar reserva #{{ reserva?.id_reserva }}</h3>
+    <button class="btn-link" type="button" (click)="cerrar()">Cerrar</button>
+  </div>
+
+  <div class="form-row">
+    <div class="field">
+      <label>Número de huéspedes</label>
+      <select [value]="numeroHuespedes" (change)="onGuestCountChange($any($event.target).value)">
+        <option *ngFor="let numero of numerosHuespedes" [value]="numero">
+          {{ numero }} {{ numero === 1 ? 'huésped' : 'huéspedes' }}
+        </option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Check-in</label>
+      <input type="date" [min]="getCheckInMin()" [value]="checkIn" #checkInInput (change)="onCheckInChange(checkInInput.value)" />
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="field">
+      <label>Check-out</label>
+      <input type="date" [min]="getCheckOutMin()" [value]="checkOut" #checkOutInput (change)="onCheckOutChange(checkOutInput.value)" />
+    </div>
+    <div class="field">
+      <label>Reserva actual</label>
+      <p class="helper-text">Se preselecciona la cabaña guardada en la reserva y puedes cambiarla si lo deseas.</p>
+    </div>
+  </div>
+
+  <div class="room-cards-grid" *ngIf="habitaciones.length > 0; else noRoomsTemplate">
+    <button class="room-card" type="button" *ngFor="let habitacion of habitaciones" [class.selected]="isRoomSelected(habitacion)" [class.unavailable]="!isHabitacionDisponibleParaHuespedes(habitacion) || (!isHabitacionDisponiblePorFecha(habitacion) && !esReservaActual(habitacion))" [class.occupied]="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion) && !esReservaActual(habitacion)" [disabled]="!isHabitacionDisponibleParaHuespedes(habitacion)" (click)="selectRoomSafe(habitacion)">
+      <div class="room-card-body">
+        <div class="room-header-with-badge">
+          <h4>{{ getNombreHabitacion(habitacion) }}</h4>
+          <span class="room-badge occupied-badge" *ngIf="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion) && !esReservaActual(habitacion)">OCUPADA</span>
+          <span class="room-badge capacity-badge" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">CAPACIDAD</span>
+          <span class="room-badge current-badge" *ngIf="esReservaActual(habitacion)">ACTUAL</span>
+        </div>
+        <div class="room-image-wrap">
+          <img class="room-image" [src]="getImagenHabitacion(habitacion)" [alt]="getNombreHabitacion(habitacion)" />
+          <span class="room-check" [class.active]="isRoomSelected(habitacion)">
+            <span class="room-check-dot"></span>
+          </span>
+        </div>
+        <p>{{ getDescripcionHabitacion(habitacion) }}</p>
+        <span class="room-capacity">Capacidad: {{ getCapacidadHabitacion(habitacion) }} personas</span>
+        <span class="room-warning" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">No disponible para {{ numeroHuespedes }} huéspedes</span>
+        <span class="room-warning" *ngIf="isHabitacionDisponibleParaHuespedes(habitacion) && !isHabitacionDisponiblePorFecha(habitacion) && !esReservaActual(habitacion)">Ocupada en estas fechas</span>
+        <strong>{{ formatMoney(getPrecioHabitacion(habitacion)) }}/noche</strong>
+      </div>
+    </button>
+  </div>
+
+  <ng-template #noRoomsTemplate>
+    <div class="summary-box">
+      <p class="helper-text">No hay cabañas disponibles en este momento.</p>
+    </div>
+  </ng-template>
+
+  <div class="summary-box" *ngIf="roomSummaryVisible">
+    <h4>Resumen de la actualización</h4>
+    <div class="summary-line"><span>{{ roomSummary.type }}</span><span>{{ roomSummary.rate }}</span></div>
+    <div class="summary-line"><span>{{ roomSummary.nights }}</span><span>{{ roomSummary.sub }}</span></div>
+    <div class="summary-line"><span>Impuestos (19%)</span><span>{{ roomSummary.tax }}</span></div>
+    <div class="summary-line"><span>Total</span><span>{{ roomSummary.total }}</span></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-sm" type="button" (click)="cerrar()" [disabled]="isSubmittingReservation || isCheckingAvailability">Cancelar</button>
+    <button class="btn-primary" type="button" (click)="submitReservationUpdate()" [disabled]="!canSubmit() || isSubmittingReservation || isCheckingAvailability">
+      {{ isSubmittingReservation ? 'Guardando cambios...' : (isCheckingAvailability ? 'Validando disponibilidad...' : 'Guardar modificación') }}
+    </button>
+  </div>
+</div>

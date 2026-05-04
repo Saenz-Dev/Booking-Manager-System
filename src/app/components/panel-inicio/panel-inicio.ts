@@ -5,6 +5,7 @@ import { NotificacionesService } from '../../services/notificaciones.service';
 import { HabitacionesService } from '../../services/habitaciones.service';
 import { EditarUsuarioComponent } from '../editar-usuario/editar-usuario';
 import { CrearReservaComponent } from '../crear-reserva/crear-reserva';
+import { EditarReservaComponent } from '../editar-reserva/editar-reserva';
 
 type TabName = 'reservar' | 'historial' | 'facturas' | 'perfil';
 
@@ -20,12 +21,13 @@ interface ReservaHistorial {
   id_usuario: string;
   estado: string;
   cantidad_personas: string;
+  nombre_cabania?: string;
 }
 
 @Component({
   selector: 'app-panel-inicio',
   standalone: true,
-  imports: [CommonModule, EditarUsuarioComponent, CrearReservaComponent],
+  imports: [CommonModule, EditarUsuarioComponent, CrearReservaComponent, EditarReservaComponent],
   templateUrl: './panel-inicio.html',
   styleUrl: './panel-inicio.css'
 })
@@ -39,8 +41,12 @@ export class PanelInicio implements OnInit {
   toastVisible = false;
   mostrarModalCerrarSesion = false;
   mostrarModalCancelarReserva = false;
+  mostrarModalEditarReserva = false;
   isCancellingReserva = false;
+  isConfirmingReserva = false;
+  reservaConfirmandoId: string | null = null;
   reservaSeleccionadaParaCancelar: ReservaHistorial | null = null;
+  reservaSeleccionadaParaEditar: ReservaHistorial | null = null;
   reservasHistorial: ReservaHistorial[] = [];
   isLoadingHistorial = false;
 
@@ -117,11 +123,29 @@ export class PanelInicio implements OnInit {
   }
 
   getEstadoReservaLabel(estado: string): string {
-    return String(estado) === '1' ? 'Confirmada' : 'Cancelada';
+    const estadoValue = String(estado);
+    if (estadoValue === '0') {
+      return 'Confirmada';
+    }
+
+    if (estadoValue === '1') {
+      return 'Pendiente';
+    }
+
+    return 'Cancelada';
   }
 
   getEstadoReservaClass(estado: string): string {
-    return String(estado) === '1' ? 'status-confirmed' : 'status-cancelled';
+    const estadoValue = String(estado);
+    if (estadoValue === '0') {
+      return 'status-confirmed';
+    }
+
+    if (estadoValue === '1') {
+      return 'status-pending';
+    }
+
+    return 'status-cancelled';
   }
 
   getResumenReserva(reserva: ReservaHistorial): string {
@@ -131,12 +155,87 @@ export class PanelInicio implements OnInit {
     const nochesLabel = noches === 1 ? '1 noche' : `${noches} noches`;
     const personas = Number(reserva.cantidad_personas);
     const personasLabel = personas === 1 ? '1 persona' : `${personas} personas`;
+    const cabaniaLabel = reserva.nombre_cabania ? `Cabaña ${reserva.nombre_cabania}` : 'Cabaña sin nombre';
 
-    return `Check-in ${inicio} · Check-out ${fin} · ${nochesLabel} · ${personasLabel}`;
+    return `${cabaniaLabel} · Check-in ${inicio} · Check-out ${fin} · ${nochesLabel} · ${personasLabel}`;
   }
 
   puedeCancelarReserva(reserva: ReservaHistorial): boolean {
-    return String(reserva.estado) === '1';
+    return !this.estaReservaConfirmada(reserva);
+  }
+
+  puedeConfirmarReserva(reserva: ReservaHistorial): boolean {
+    return !this.estaReservaConfirmada(reserva);
+  }
+
+  estaProcesandoConfirmacion(reserva: ReservaHistorial): boolean {
+    return this.isConfirmingReserva && this.reservaConfirmandoId === String(reserva.id_reserva);
+  }
+
+  modificarReserva(reserva: ReservaHistorial): void {
+    if (this.estaReservaConfirmada(reserva)) {
+      return;
+    }
+
+    this.reservaSeleccionadaParaEditar = reserva;
+    this.mostrarModalEditarReserva = true;
+  }
+
+  cerrarModalEditarReserva(): void {
+    this.mostrarModalEditarReserva = false;
+    this.reservaSeleccionadaParaEditar = null;
+  }
+
+  onReservaModificada(result: ReservationResult): void {
+    if (result.success) {
+      this._notificacionesService.success(result.message, 'Reserva');
+      this.cerrarModalEditarReserva();
+      this.cargarHistorialReservas();
+      return;
+    }
+
+    this._notificacionesService.warning(result.message, 'Reserva');
+  }
+
+  confirmarReserva(reserva: ReservaHistorial): void {
+    if (!this.puedeConfirmarReserva(reserva) || this.isConfirmingReserva) {
+      return;
+    }
+
+    const payload = {
+      fecha_hora_inicio: reserva.fecha_hora_inicio,
+      fecha_hora_fin: reserva.fecha_hora_fin,
+      id_usuario: reserva.id_usuario,
+      estado: 0,
+      cantidad_personas: reserva.cantidad_personas,
+      nombre_cabania: reserva.nombre_cabania ?? '',
+      id_reserva: Number(reserva.id_reserva)
+    };
+
+    this.isConfirmingReserva = true;
+    this.reservaConfirmandoId = String(reserva.id_reserva);
+    this._habitacionesService.putReserva(payload).subscribe({
+      next: (response: any) => {
+        const statusOk = response?.status === 200 || response?.code === 200;
+        const message = String(response?.message ?? 'Reserva confirmada exitosamente');
+
+        if (statusOk) {
+          this._notificacionesService.success(message, 'Reserva');
+          this.cargarHistorialReservas();
+          return;
+        }
+
+        this._notificacionesService.warning(message, 'Reserva');
+      },
+      error: (error: any) => {
+        const message = String(error?.error?.message ?? 'No fue posible confirmar la reserva');
+        this._notificacionesService.warning(message, 'Reserva');
+      },
+      complete: () => {
+        this.isConfirmingReserva = false;
+        this.reservaConfirmandoId = null;
+      }
+    });
   }
 
   abrirModalCancelarReserva(reserva: ReservaHistorial): void {
@@ -198,7 +297,7 @@ export class PanelInicio implements OnInit {
         const statusOk = response?.status === 200 || response?.code === 200;
         const data = Array.isArray(response?.data) ? response.data : [];
 
-        this.reservasHistorial = statusOk ? data : [];
+        this.reservasHistorial = statusOk ? data.map((reserva: any) => this.normalizarReservaHistorial(reserva)) : [];
       },
       error: () => {
         this.reservasHistorial = [];
@@ -242,5 +341,29 @@ export class PanelInicio implements OnInit {
     }
 
     return `${partes[0].charAt(0)}${partes[1].charAt(0)}`.toUpperCase();
+  }
+
+  private normalizarReservaHistorial(reserva: any): ReservaHistorial {
+    const nombreCabania =
+      reserva?.nombre_cabania ??
+      reserva?.nombreCabania ??
+      reserva?.nombre_habitacion ??
+      reserva?.nombreHabitacion ??
+      reserva?.cabania ??
+      '';
+
+    return {
+      id_reserva: String(reserva?.id_reserva ?? ''),
+      fecha_hora_inicio: String(reserva?.fecha_hora_inicio ?? ''),
+      fecha_hora_fin: String(reserva?.fecha_hora_fin ?? ''),
+      id_usuario: String(reserva?.id_usuario ?? ''),
+      estado: String(reserva?.estado ?? ''),
+      cantidad_personas: String(reserva?.cantidad_personas ?? ''),
+      nombre_cabania: String(nombreCabania)
+    };
+  }
+
+  estaReservaConfirmada(reserva: ReservaHistorial): boolean {
+    return String(reserva.estado) === '0';
   }
 }

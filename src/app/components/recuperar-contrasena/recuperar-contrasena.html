@@ -1,0 +1,31 @@
+<div class="recover-wrapper">
+  <div class="recover-card">
+    <h2>Recuperar contraseña</h2>
+    <p class="subtitle">
+      Ingresa tu correo y te enviaremos los pasos para restablecer tu contraseña.
+    </p>
+
+    <form (ngSubmit)="enviarRecuperacion()">
+      <div class="input-group">
+        <label for="correo">Correo electrónico</label>
+        <input
+          id="correo"
+          type="email"
+          name="correo"
+          placeholder="tu@correo.com"
+          [(ngModel)]="email"
+          required
+        >
+      </div>
+
+      <button type="submit" class="recover-btn">Enviar enlace</button>
+
+      <p class="error" *ngIf="error">{{ error }}</p>
+      <p class="success" *ngIf="mensaje">{{ mensaje }}</p>
+    </form>
+
+    <div class="back-login">
+      <a [routerLink]="['/login']">Volver al inicio de sesión</a>
+    </div>
+  </div>
+</div>

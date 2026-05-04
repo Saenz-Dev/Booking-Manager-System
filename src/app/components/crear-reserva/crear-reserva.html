@@ -67,9 +67,13 @@
     </div>
 
     <div class="room-cards-grid" *ngIf="habitaciones.length > 0; else noRoomsTemplate">
-      <button class="room-card" type="button" *ngFor="let habitacion of habitaciones" [class.selected]="isRoomSelected(habitacion)" [class.unavailable]="!isHabitacionDisponibleParaHuespedes(habitacion) || !isHabitacionDisponiblePorFecha(habitacion)" [disabled]="!isHabitacionDisponibleParaHuespedes(habitacion) || !isHabitacionDisponiblePorFecha(habitacion)" (click)="selectRoom(habitacion)">
+      <button class="room-card" type="button" *ngFor="let habitacion of habitaciones" [class.selected]="isRoomSelected(habitacion)" [class.unavailable]="!isHabitacionDisponibleParaHuespedes(habitacion) || !isHabitacionDisponiblePorFecha(habitacion)" [class.occupied]="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion)" [disabled]="!isHabitacionDisponibleParaHuespedes(habitacion)" (click)="selectRoomSafe(habitacion)">
         <div class="room-card-body">
-          <h4>{{ getNombreHabitacion(habitacion) }}</h4>
+          <div class="room-header-with-badge">
+            <h4>{{ getNombreHabitacion(habitacion) }}</h4>
+            <span class="room-badge occupied-badge" *ngIf="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion)">OCUPADA</span>
+            <span class="room-badge capacity-badge" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">CAPACIDAD</span>
+          </div>
           <div class="room-image-wrap">
             <img class="room-image" [src]="getImagenHabitacion(habitacion)" [alt]="getNombreHabitacion(habitacion)" />
             <span class="room-check" [class.active]="isRoomSelected(habitacion)">
@@ -79,7 +83,7 @@
           <p>{{ getDescripcionHabitacion(habitacion) }}</p>
           <span class="room-capacity">Capacidad: {{ getCapacidadHabitacion(habitacion) }} personas</span>
           <span class="room-warning" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">No disponible para {{ numeroHuespedes }} huéspedes</span>
-          <span class="room-warning" *ngIf="isHabitacionDisponibleParaHuespedes(habitacion) && !isHabitacionDisponiblePorFecha(habitacion)">No disponible en el rango de fechas seleccionado</span>
+          <span class="room-warning" *ngIf="isHabitacionDisponibleParaHuespedes(habitacion) && !isHabitacionDisponiblePorFecha(habitacion)">Ocupada en estas fechas</span>
           <strong>{{ formatMoney(getPrecioHabitacion(habitacion)) }}/noche</strong>
         </div>
       </button>

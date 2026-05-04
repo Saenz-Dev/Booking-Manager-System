@@ -551,6 +551,23 @@
   color: #E24B4A;
 }
 
+.btn-sm.confirm {
+  border-color: rgba(59, 109, 17, 0.28);
+  color: #3B6D11;
+  background: #EAF3DE;
+}
+
+.btn-sm.confirm:hover {
+  border-color: #3B6D11;
+  color: #2F550E;
+}
+
+.btn-sm.confirm:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .btn-sm.danger:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -844,6 +861,12 @@
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
+}
+
+.edit-reserva-modal {
+  width: min(100%, 980px);
+  max-height: min(90vh, 860px);
+  overflow: auto;
 }
 
 @media (max-width: 768px) {

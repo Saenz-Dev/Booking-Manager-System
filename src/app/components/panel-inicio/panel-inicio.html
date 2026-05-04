@@ -48,7 +48,13 @@
           {{ getEstadoReservaLabel(reserva.estado) }}
         </span>
         <div class="res-actions">
-          <button class="btn-sm danger" type="button" [disabled]="!puedeCancelarReserva(reserva)" (click)="abrirModalCancelarReserva(reserva)">
+          <button class="btn-sm confirm" type="button" *ngIf="puedeConfirmarReserva(reserva)" [disabled]="estaProcesandoConfirmacion(reserva)" (click)="confirmarReserva(reserva)">
+            {{ estaProcesandoConfirmacion(reserva) ? 'Confirmando...' : 'Confirmar reserva' }}
+          </button>
+          <button class="btn-sm" type="button" *ngIf="!estaReservaConfirmada(reserva)" (click)="modificarReserva(reserva)">
+            Modificar
+          </button>
+          <button class="btn-sm danger" type="button" *ngIf="puedeCancelarReserva(reserva)" [disabled]="!puedeCancelarReserva(reserva)" (click)="abrirModalCancelarReserva(reserva)">
             Cancelar reserva
           </button>
         </div>
@@ -146,6 +152,17 @@
         {{ isCancellingReserva ? 'Cancelando...' : 'Sí, cancelar' }}
       </button>
     </div>
+  </div>
+</div>
+
+<div class="logout-modal-backdrop" *ngIf="mostrarModalEditarReserva" (click)="cerrarModalEditarReserva()">
+  <div class="logout-modal edit-reserva-modal" role="dialog" aria-modal="true" aria-labelledby="edit-reservation-modal-title" (click)="$event.stopPropagation()">
+    <h3 id="edit-reservation-modal-title">Modificar reserva</h3>
+    <app-editar-reserva
+      [reserva]="reservaSeleccionadaParaEditar"
+      (cancelEdit)="cerrarModalEditarReserva()"
+      (reservationUpdated)="onReservaModificada($event)">
+    </app-editar-reserva>
   </div>
 </div>
 

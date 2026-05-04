@@ -35,6 +35,7 @@ export class CrearReservaComponent implements OnInit {
     roomSummaryVisible = false;
     isSubmittingReservation = false;
     isCheckingAvailability = false;
+    hasDisponibilidadLoaded = false;
     isWaitingStepTransition = false;
     disponibilidadPorCabania: Record<string, boolean> = {};
     roomSummary = {
@@ -72,6 +73,7 @@ export class CrearReservaComponent implements OnInit {
                     } else {
                         this.selectedRoomId = null;
                     }
+                    this.validarDisponibilidadSilenciosa();
                     return;
                 }
 
@@ -109,6 +111,8 @@ export class CrearReservaComponent implements OnInit {
         if (habitacionSeleccionada && !this.canUseHabitacion(habitacionSeleccionada)) {
             this.autoSelectFirstAvailableRoom();
         }
+
+        this.validarDisponibilidadSilenciosa();
     }
 
     goToNextStep(): void {
@@ -136,6 +140,14 @@ export class CrearReservaComponent implements OnInit {
         const valor = this.getPrecioHabitacion(habitacion);
         const nombre = this.getNombreHabitacion(habitacion);
         this.onRoomTypeChange(String(valor), `${nombre} - ${this.formatMoney(valor)}/noche`);
+    }
+
+    selectRoomSafe(habitacion: any): void {
+        if (!this.canUseHabitacion(habitacion)) {
+            return;
+        }
+
+        this.selectRoom(habitacion);
     }
 
     isRoomSelected(habitacion: any): boolean {
@@ -171,12 +183,16 @@ export class CrearReservaComponent implements OnInit {
     }
 
     isHabitacionDisponiblePorFecha(habitacion: any): boolean {
-        const key = String(this.getHabitacionId(habitacion));
-        if (!(key in this.disponibilidadPorCabania)) {
+        if (!this.hasDisponibilidadLoaded) {
             return true;
         }
 
-        return this.disponibilidadPorCabania[key];
+        const keys = this.getHabitacionLookupKeys(habitacion);
+        if (keys.length === 0) {
+            return true;
+        }
+
+        return keys.some((key: string) => this.disponibilidadPorCabania[key] === true);
     }
 
     getPrecioHabitacion(habitacion: any): number {
@@ -209,11 +225,13 @@ export class CrearReservaComponent implements OnInit {
         }
 
         this.calcRoom();
+        this.validarDisponibilidadSilenciosa();
     }
 
     onCheckOutChange(value: string): void {
         this.checkOut = value;
         this.calcRoom();
+        this.validarDisponibilidadSilenciosa();
     }
 
     submitRoomReservation(): void {
@@ -331,6 +349,32 @@ export class CrearReservaComponent implements OnInit {
         });
     }
 
+    private validarDisponibilidadSilenciosa(): void {
+        if (!this.isCheckInValid() || !this.isCheckOutValid() || this.isCheckingAvailability) {
+            return;
+        }
+
+        this.isCheckingAvailability = true;
+        this._habitacionesService.getDisponibilidadReserva(
+            this.toUtcMidnight(this.checkIn),
+            this.toUtcMidnight(this.checkOut)
+        ).subscribe({
+            next: (response: any) => {
+                const statusOk = response?.status === 200 || response?.code === 200;
+                const data = Array.isArray(response?.data) ? response.data : [];
+
+                if (!statusOk) {
+                    return;
+                }
+
+                this.actualizarDisponibilidadCabania(data);
+            },
+            complete: () => {
+                this.isCheckingAvailability = false;
+            }
+        });
+    }
+
     // Calcula resumen y total de la reserva de habitación.
     private calcRoom(): void {
         if (!this.checkIn || !this.checkOut) {
@@ -366,6 +410,7 @@ export class CrearReservaComponent implements OnInit {
         this.checkOut = this.getNextDate(this.checkIn);
         this.reservationStep = 1;
         this.calcRoom();
+        this.validarDisponibilidadSilenciosa();
     }
 
     private getHabitacionId(habitacion: any): string | number {
@@ -388,15 +433,14 @@ export class CrearReservaComponent implements OnInit {
         const nuevoEstado: Record<string, boolean> = {};
 
         for (const item of disponibilidad) {
-            const id = String(item?.id_cabania ?? item?.id ?? '');
-            if (!id) {
-                continue;
+            const keys = this.getDisponibilidadLookupKeys(item);
+            for (const key of keys) {
+                nuevoEstado[key] = item?.disponible === true;
             }
-
-            nuevoEstado[id] = item?.disponible === true;
         }
 
         this.disponibilidadPorCabania = nuevoEstado;
+        this.hasDisponibilidadLoaded = true;
 
         const habitacionSeleccionada = this.getHabitacionSeleccionada();
         if (!habitacionSeleccionada || !this.canUseHabitacion(habitacionSeleccionada)) {
@@ -417,6 +461,30 @@ export class CrearReservaComponent implements OnInit {
 
     private canUseHabitacion(habitacion: any): boolean {
         return this.isHabitacionDisponibleParaHuespedes(habitacion) && this.isHabitacionDisponiblePorFecha(habitacion);
+    }
+
+    private getHabitacionLookupKeys(habitacion: any): string[] {
+        const keys = [
+            habitacion?.id_cabania,
+            habitacion?.id_habitacion,
+            habitacion?.id,
+            this.getNombreHabitacion(habitacion).trim().toLowerCase()
+        ].map((value: any) => String(value ?? '').trim().toLowerCase()).filter((value: string) => !!value);
+
+        return Array.from(new Set(keys));
+    }
+
+    private getDisponibilidadLookupKeys(item: any): string[] {
+        const keys = [
+            item?.id_cabania,
+            item?.id_habitacion,
+            item?.id,
+            item?.nombre_cabania,
+            item?.nombre,
+            item?.cabania
+        ].map((value: any) => String(value ?? '').trim().toLowerCase()).filter((value: string) => !!value);
+
+        return Array.from(new Set(keys));
     }
 
     private isHabitacionActiva(habitacion: any): boolean {
