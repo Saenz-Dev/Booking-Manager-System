@@ -1,77 +1,182 @@
 <div class="edit-reserva-shell">
   <div class="step-header">
-    <h3>Modificar reserva #{{ reserva?.id_reserva }}</h3>
+    <h3>Modificar {{ getReservationTypeLabel() }} #{{ reserva?.id_reserva }}</h3>
     <button class="btn-link" type="button" (click)="cerrar()">Cerrar</button>
   </div>
 
-  <div class="form-row">
-    <div class="field">
-      <label>Número de huéspedes</label>
-      <select [value]="numeroHuespedes" (change)="onGuestCountChange($any($event.target).value)">
-        <option *ngFor="let numero of numerosHuespedes" [value]="numero">
-          {{ numero }} {{ numero === 1 ? 'huésped' : 'huéspedes' }}
-        </option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Check-in</label>
-      <input type="date" [min]="getCheckInMin()" [value]="checkIn" #checkInInput (change)="onCheckInChange(checkInInput.value)" />
-    </div>
-  </div>
-
-  <div class="form-row">
-    <div class="field">
-      <label>Check-out</label>
-      <input type="date" [min]="getCheckOutMin()" [value]="checkOut" #checkOutInput (change)="onCheckOutChange(checkOutInput.value)" />
-    </div>
-    <div class="field">
-      <label>Reserva actual</label>
-      <p class="helper-text">Se preselecciona la cabaña guardada en la reserva y puedes cambiarla si lo deseas.</p>
-    </div>
-  </div>
-
-  <div class="room-cards-grid" *ngIf="habitaciones.length > 0; else noRoomsTemplate">
-    <button class="room-card" type="button" *ngFor="let habitacion of habitaciones" [class.selected]="isRoomSelected(habitacion)" [class.unavailable]="!isHabitacionDisponibleParaHuespedes(habitacion) || (!isHabitacionDisponiblePorFecha(habitacion) && !esReservaActual(habitacion))" [class.occupied]="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion) && !esReservaActual(habitacion)" [disabled]="!isHabitacionDisponibleParaHuespedes(habitacion)" (click)="selectRoomSafe(habitacion)">
-      <div class="room-card-body">
-        <div class="room-header-with-badge">
-          <h4>{{ getNombreHabitacion(habitacion) }}</h4>
-          <span class="room-badge occupied-badge" *ngIf="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion) && !esReservaActual(habitacion)">OCUPADA</span>
-          <span class="room-badge capacity-badge" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">CAPACIDAD</span>
-          <span class="room-badge current-badge" *ngIf="esReservaActual(habitacion)">ACTUAL</span>
-        </div>
-        <div class="room-image-wrap">
-          <img class="room-image" [src]="getImagenHabitacion(habitacion)" [alt]="getNombreHabitacion(habitacion)" />
-          <span class="room-check" [class.active]="isRoomSelected(habitacion)">
-            <span class="room-check-dot"></span>
-          </span>
-        </div>
-        <p>{{ getDescripcionHabitacion(habitacion) }}</p>
-        <span class="room-capacity">Capacidad: {{ getCapacidadHabitacion(habitacion) }} personas</span>
-        <span class="room-warning" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">No disponible para {{ numeroHuespedes }} huéspedes</span>
-        <span class="room-warning" *ngIf="isHabitacionDisponibleParaHuespedes(habitacion) && !isHabitacionDisponiblePorFecha(habitacion) && !esReservaActual(habitacion)">Ocupada en estas fechas</span>
-        <strong>{{ formatMoney(getPrecioHabitacion(habitacion)) }}/noche</strong>
+  <ng-container *ngIf="!isReservationTypeMesa(); else mesaEditorTemplate">
+    <div class="form-row">
+      <div class="field">
+        <label>Número de huéspedes</label>
+        <select [value]="numeroHuespedes" (change)="onGuestCountChange($any($event.target).value)">
+          <option *ngFor="let numero of numerosHuespedes" [value]="numero">
+            {{ numero }} {{ numero === 1 ? 'huésped' : 'huéspedes' }}
+          </option>
+        </select>
       </div>
-    </button>
-  </div>
-
-  <ng-template #noRoomsTemplate>
-    <div class="summary-box">
-      <p class="helper-text">No hay cabañas disponibles en este momento.</p>
+      <div class="field">
+        <label>Check-in</label>
+        <input type="date" [min]="getCheckInMin()" [value]="checkIn" #checkInInput (change)="onCheckInChange(checkInInput.value)" />
+      </div>
     </div>
-  </ng-template>
 
-  <div class="summary-box" *ngIf="roomSummaryVisible">
-    <h4>Resumen de la actualización</h4>
-    <div class="summary-line"><span>{{ roomSummary.type }}</span><span>{{ roomSummary.rate }}</span></div>
-    <div class="summary-line"><span>{{ roomSummary.nights }}</span><span>{{ roomSummary.sub }}</span></div>
-    <div class="summary-line"><span>Impuestos (19%)</span><span>{{ roomSummary.tax }}</span></div>
-    <div class="summary-line"><span>Total</span><span>{{ roomSummary.total }}</span></div>
-  </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Check-out</label>
+        <input type="date" [min]="getCheckOutMin()" [value]="checkOut" #checkOutInput (change)="onCheckOutChange(checkOutInput.value)" />
+      </div>
+      <div class="field">
+        <label>Reserva actual</label>
+        <p class="helper-text">
+          Se preselecciona la {{ getReservationTypeLabel() }} guardada en la reserva y puedes cambiarla si lo deseas.
+        </p>
+      </div>
+    </div>
+
+    <div class="room-cards-grid" *ngIf="habitaciones.length > 0; else noRoomsTemplate">
+      <button class="room-card" type="button" *ngFor="let habitacion of habitaciones" [class.selected]="isRoomSelected(habitacion)" [class.unavailable]="!isHabitacionDisponibleParaHuespedes(habitacion) || (!isHabitacionDisponiblePorFecha(habitacion) && !esReservaActual(habitacion))" [class.occupied]="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion) && !esReservaActual(habitacion)" [disabled]="!isHabitacionDisponibleParaHuespedes(habitacion)" (click)="selectRoomSafe(habitacion)">
+        <div class="room-card-body">
+          <div class="room-header-with-badge">
+            <h4>{{ getNombreHabitacion(habitacion) }}</h4>
+            <span class="room-badge occupied-badge" *ngIf="!isHabitacionDisponiblePorFecha(habitacion) && isHabitacionDisponibleParaHuespedes(habitacion) && !esReservaActual(habitacion)">OCUPADA</span>
+            <span class="room-badge capacity-badge" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">CAPACIDAD</span>
+            <span class="room-badge current-badge" *ngIf="esReservaActual(habitacion)">ACTUAL</span>
+          </div>
+          <div class="room-image-wrap">
+            <img class="room-image" [src]="getImagenHabitacion(habitacion)" [alt]="getNombreHabitacion(habitacion)" />
+            <span class="room-check" [class.active]="isRoomSelected(habitacion)">
+              <span class="room-check-dot"></span>
+            </span>
+          </div>
+          <p>{{ getDescripcionHabitacion(habitacion) }}</p>
+          <span class="room-capacity">Capacidad: {{ getCapacidadHabitacion(habitacion) }} personas</span>
+          <span class="room-warning" *ngIf="!isHabitacionDisponibleParaHuespedes(habitacion)">No disponible para {{ numeroHuespedes }} huéspedes</span>
+          <span class="room-warning" *ngIf="isHabitacionDisponibleParaHuespedes(habitacion) && !isHabitacionDisponiblePorFecha(habitacion) && !esReservaActual(habitacion)">Ocupada en estas fechas</span>
+          <strong>{{ formatMoney(getPrecioHabitacion(habitacion)) }}/noche</strong>
+        </div>
+      </button>
+    </div>
+          <div class="form-row">
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>Descripción de la reserva</label>
+              <textarea rows="3" [value]="descripcionReserva" (input)="descripcionReserva = $any($event.target).value" placeholder="Agrega una nota para tu reserva de cabaña"></textarea>
+            </div>
+          </div>
+
+    <ng-template #noRoomsTemplate>
+      <div class="summary-box">
+        <p class="helper-text">No hay {{ getReservationTypeLabel() }}s disponibles en este momento.</p>
+      </div>
+    </ng-template>
+
+    <div class="summary-box" *ngIf="roomSummaryVisible">
+      <h4>Resumen de la actualización de {{ getReservationTypeLabel() }}</h4>
+      <div class="summary-line"><span>{{ roomSummary.type }}</span><span>{{ roomSummary.rate }}</span></div>
+      <div class="summary-line"><span>{{ roomSummary.nights }}</span><span>{{ roomSummary.sub }}</span></div>
+            <div class="summary-line"><span>Descripción</span><span>{{ descripcionReserva || '--' }}</span></div>
+      <div class="summary-line"><span>Impuestos (19%)</span><span>{{ roomSummary.tax }}</span></div>
+      <div class="summary-line"><span>Total</span><span>{{ roomSummary.total }}</span></div>
+    </div>
+  </ng-container>
+
+  <ng-template #mesaEditorTemplate>
+    <div class="form-row">
+      <div class="field">
+        <label>Fecha</label>
+        <input type="date" [min]="getCheckInMin()" [value]="tableDate" #tableDateInput (change)="onTableDateChange(tableDateInput.value)" />
+      </div>
+      <div class="field">
+        <label>Personas</label>
+        <select [value]="tablePeople" (change)="onTablePeopleChange($any($event.target).value)">
+          <option *ngFor="let numero of numerosPersonasMesa" [value]="numero">
+            {{ numero }} {{ numero === 1 ? 'persona' : 'personas' }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label>Hora de inicio</label>
+        <select [value]="tableStartTime" (change)="onTableStartTimeChange($any($event.target).value)">
+          <option value="" disabled>Selecciona una hora</option>
+          <option *ngFor="let hour of tableHours" [value]="hour">{{ hour }}:00</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Hora de fin</label>
+        <select [value]="tableEndTime" (change)="onTableEndTimeChange($any($event.target).value)">
+          <option value="" disabled>Selecciona una hora</option>
+          <option *ngFor="let hour of getAvailableEndTimes()" [value]="hour">{{ hour }}:00</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Estado</label>
+      <p class="helper-text" [class.availability-checking]="tableAvailabilityState === 'checking'" [class.availability-ok]="tableAvailabilityState === 'available'" [class.availability-none]="tableAvailabilityState === 'unavailable'">
+        {{ tableAvailabilityMessage || 'Selecciona fecha y horas para validar disponibilidad.' }}
+      </p>
+    </div>
+
+    <div class="selected-data-box">
+      <div class="selected-data-item">
+        <span class="selected-data-label">Fecha</span>
+        <strong>{{ tableDate || '--' }}</strong>
+      </div>
+      <div class="selected-data-item">
+        <span class="selected-data-label">Hora</span>
+        <strong>{{ tableStartTime ? tableStartTime + ':00' : '--' }} - {{ tableEndTime ? tableEndTime + ':00' : '--' }}</strong>
+      </div>
+      <div class="selected-data-item">
+        <span class="selected-data-label">Personas</span>
+        <strong>{{ tablePeople }} {{ tablePeople === 1 ? 'persona' : 'personas' }}</strong>
+      </div>
+    </div>
+
+    <div class="room-cards-grid" *ngIf="mesasDisponibles.length > 0; else noTablesTemplate">
+      <button class="room-card" type="button" *ngFor="let mesa of mesasDisponibles" [class.selected]="isMesaSelected(mesa)" (click)="selectTableSafe(mesa)">
+        <div class="room-card-body">
+          <div class="room-header-with-badge">
+            <h4>{{ getMesaNombre(mesa) }}</h4>
+          </div>
+          <div class="room-image-wrap">
+            <span class="room-check" [class.active]="isMesaSelected(mesa)">
+              <span class="room-check-dot"></span>
+            </span>
+          </div>
+          <p>{{ getMesaDescripcion(mesa) }}</p>
+          <span class="room-capacity" *ngIf="getMesaCapacidad(mesa) > 0">Capacidad: {{ getMesaCapacidad(mesa) }} personas</span>
+        </div>
+      </button>
+    </div>
+
+    <ng-template #noTablesTemplate>
+          <div class="form-row">
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>Descripción de la reserva</label>
+              <textarea rows="3" [value]="descripcionReserva" (input)="descripcionReserva = $any($event.target).value" placeholder="Agrega una nota para tu reserva de mesa"></textarea>
+            </div>
+          </div>
+      <div class="summary-box">
+        <p class="helper-text">No hay mesas disponibles para esta fecha y hora.</p>
+      </div>
+    </ng-template>
+
+    <div class="summary-box" *ngIf="tableSummaryVisible">
+      <h4>Resumen de la actualización de mesa</h4>
+      <div class="summary-line"><span>Mesa seleccionada</span><span>{{ getMesaNombre(getMesaSeleccionada()) }}</span></div>
+      <div class="summary-line"><span>Fecha</span><span>{{ tableDate }}</span></div>
+      <div class="summary-line"><span>Horario</span><span>{{ tableStartTime }}:00 - {{ tableEndTime }}:00</span></div>
+      <div class="summary-line"><span>Personas</span><span>{{ tablePeople }}</span></div>
+    </div>
+            <div class="summary-line"><span>Descripción</span><span>{{ descripcionReserva || '--' }}</span></div>
+  </ng-template>
 
   <div class="actions">
     <button class="btn-sm" type="button" (click)="cerrar()" [disabled]="isSubmittingReservation || isCheckingAvailability">Cancelar</button>
-    <button class="btn-primary" type="button" (click)="submitReservationUpdate()" [disabled]="!canSubmit() || isSubmittingReservation || isCheckingAvailability">
-      {{ isSubmittingReservation ? 'Guardando cambios...' : (isCheckingAvailability ? 'Validando disponibilidad...' : 'Guardar modificación') }}
+    <button class="btn-primary" type="button" (click)="submitReservationUpdate()" [disabled]="!canSubmit() || isSubmittingReservation">
+      {{ isReservationTypeMesa() ? (isSubmittingTableReservation ? 'Guardando cambios...' : 'Guardar modificación de mesa') : (isSubmittingReservation ? 'Guardando cambios...' : 'Guardar modificación') }}
     </button>
   </div>
 </div>

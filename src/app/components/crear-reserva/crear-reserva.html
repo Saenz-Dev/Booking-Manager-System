@@ -41,8 +41,14 @@
         <p class="helper-text">Solo puedes elegir entrada desde hoy y salida después de la entrada.</p>
       </div>
     </div>
-    <button class="btn-primary" type="button" (click)="goToNextStep()" [disabled]="!canContinue() || isCheckingAvailability || isWaitingStepTransition">
-      {{ (isCheckingAvailability || isWaitingStepTransition) ? 'Validando disponibilidad...' : 'Siguiente' }}
+    <div class="form-row">
+      <div class="field" style="grid-column: 1 / -1;">
+        <label>Descripción de la reserva</label>
+        <textarea rows="3" [value]="roomDescription" (input)="roomDescription = $any($event.target).value" placeholder="Agrega una nota para tu reserva de cabaña"></textarea>
+      </div>
+    </div>
+    <button class="btn-primary" type="button" (click)="goToNextStep()" [disabled]="!canContinue()">
+      Siguiente
     </button>
   </div>
 
@@ -103,60 +109,114 @@
       <div class="summary-line"><span>Total</span><span>{{ roomSummary.total }}</span></div>
     </div>
     <button class="btn-primary" type="button" (click)="submitRoomReservation()" [disabled]="!canConfirmRoomReservation() || isSubmittingReservation || isCheckingAvailability">
-      {{ isSubmittingReservation ? 'Guardando reserva...' : (isCheckingAvailability ? 'Validando disponibilidad...' : 'Confirmar reserva de habitación') }}
+      {{ isSubmittingReservation ? 'Guardando reserva...' : 'Confirmar reserva de habitación' }}
     </button>
   </div>
 </div>
 
 <div id="form-table" *ngIf="selectedType === 'table'">
-  <div class="form-box">
-    <h3>Detalles de la mesa</h3>
+  <!-- PASO 1: Ingresar datos iniciales -->
+  <div class="form-box" *ngIf="reservationTableStep === 1">
+    <h3>Detalles de la reserva</h3>
     <div class="form-row">
       <div class="field">
         <label>Fecha</label>
-        <input type="date" />
+        <input type="date" [value]="tableDate" (change)="onTableDateChange($any($event.target).value)" [min]="getCheckInMin()" />
       </div>
       <div class="field">
-        <label>Hora</label>
-        <select>
-          <option>07:00 - Desayuno</option>
-          <option>08:00 - Desayuno</option>
-          <option>12:00 - Almuerzo</option>
-          <option>13:00 - Almuerzo</option>
-          <option>19:00 - Cena</option>
-          <option>20:00 - Cena</option>
-          <option>20:30 - Cena</option>
-          <option>21:00 - Cena</option>
+        <label>Hora de inicio</label>
+        <select [value]="tableStartTime" (change)="onTableStartTimeChange($any($event.target).value)">
+          <option value="">Selecciona hora</option>
+          <option *ngFor="let hora of tableHours" [value]="hora">{{ hora }}:00</option>
         </select>
       </div>
     </div>
     <div class="form-row">
       <div class="field">
+        <label>Hora de fin</label>
+        <select [value]="tableEndTime" (change)="onTableEndTimeChange($any($event.target).value)" [disabled]="!tableStartTime">
+          <option value="">Selecciona hora</option>
+          <option *ngFor="let hora of getAvailableEndTimes()" [value]="hora">{{ hora }}:00</option>
+        </select>
+      </div>
+      <div class="field">
         <label>Número de personas</label>
-        <select>
-          <option>1 persona</option>
-          <option>2 personas</option>
-          <option>3 personas</option>
-          <option>4 personas</option>
-          <option>5-6 personas</option>
-          <option>7-10 personas</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>Área</label>
-        <select>
-          <option>Salón principal</option>
-          <option>Terraza exterior</option>
-          <option>Sala privada</option>
+        <select [value]="tablePeople" (change)="onTablePeopleChange($any($event.target).value)">
+          <option *ngFor="let num of numerosPersonasMesa" [value]="num">{{ num }} {{ num === 1 ? 'persona' : 'personas' }}</option>
         </select>
       </div>
     </div>
-    <div class="form-row full">
-      <div class="field">
-        <label>Ocasión especial</label>
-        <input type="text" placeholder="Cumpleaños, aniversario, reunión de negocios..." />
+    <div class="form-row">
+      <div class="field" style="grid-column: 1 / -1;">
+        <label>Descripción de la reserva</label>
+        <textarea rows="3" [value]="tableDescription" (input)="tableDescription = $any($event.target).value" placeholder="Agrega una nota para tu reserva de mesa"></textarea>
       </div>
     </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Fechas y horas válidas</label>
+        <p class="helper-text">Selecciona una fecha desde hoy, y una hora de fin posterior a la hora de inicio.</p>
+      </div>
+    </div>
+    <div class="form-row full" *ngIf="tableAvailabilityMessage">
+      <div class="field">
+        <label>Estado</label>
+        <p class="helper-text" [class.availability-checking]="tableAvailabilityState === 'checking'" [class.availability-ok]="tableAvailabilityState === 'available'" [class.availability-none]="tableAvailabilityState === 'unavailable'">
+          {{ tableAvailabilityMessage }}
+        </p>
+      </div>
+    </div>
+    <button class="btn-primary" type="button" (click)="goToTableStep2()" [disabled]="!canGoToTableStep2() || isCheckingTableAvailability || tableAvailabilityState === 'available'" style="display: none;">
+      {{ isCheckingTableAvailability ? 'Validando disponibilidad...' : 'Siguiente' }}
+    </button>
   </div>
-  <button class="btn-primary" type="button" (click)="confirmReservation('mesa de restaurante')">Confirmar reserva de mesa</button>
+
+  <!-- PASO 2: Seleccionar mesa disponible -->
+  <div class="form-box" *ngIf="reservationTableStep === 2">
+    <div class="step-header">
+      <h3>Selecciona tu mesa ({{ mesasDisponibles.length }} disponibles)</h3>
+      <button class="btn-link" type="button" (click)="goBackToTableStep1()">Volver</button>
+    </div>
+    <div class="selected-data-box">
+      <div class="selected-data-item">
+        <span class="selected-data-label">Fecha</span>
+        <strong>{{ tableDate }}</strong>
+      </div>
+      <div class="selected-data-item">
+        <span class="selected-data-label">Hora</span>
+        <strong>{{ tableStartTime }}:00 - {{ tableEndTime }}:00</strong>
+      </div>
+      <div class="selected-data-item">
+        <span class="selected-data-label">Personas</span>
+        <strong>{{ tablePeople }} {{ tablePeople === 1 ? 'persona' : 'personas' }}</strong>
+      </div>
+    </div>
+
+    <div class="room-cards-grid" *ngIf="mesasDisponibles.length > 0; else noTablesTemplate">
+      <button class="room-card" type="button" *ngFor="let mesa of mesasDisponibles" [class.selected]="isTableSelected(mesa)" (click)="selectTableSafe(mesa)">
+        <div class="room-card-body">
+          <div class="room-header-with-badge">
+            <h4>{{ getMesaNombre(mesa) }}</h4>
+          </div>
+          <div class="room-image-wrap">
+            <span class="room-check" [class.active]="isTableSelected(mesa)">
+              <span class="room-check-dot"></span>
+            </span>
+          </div>
+          <p>{{ getMesaDescripcion(mesa) }}</p>
+          <span class="room-capacity" *ngIf="getMesaCapacidad(mesa) > 0">Capacidad: {{ getMesaCapacidad(mesa) }} personas</span>
+        </div>
+      </button>
+    </div>
+
+    <ng-template #noTablesTemplate>
+      <div class="form-box summary-box">
+        <p class="helper-text">No hay mesas disponibles para esta fecha y hora.</p>
+      </div>
+    </ng-template>
+
+    <button class="btn-primary" type="button" (click)="confirmTableReservation()" [disabled]="!canConfirmTableReservation() || isSubmittingTableReservation">
+      {{ isSubmittingTableReservation ? 'Guardando reserva...' : 'Confirmar reserva de mesa' }}
+    </button>
+  </div>
 </div>

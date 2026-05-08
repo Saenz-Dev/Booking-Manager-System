@@ -167,6 +167,21 @@
   margin-top: 2px;
 }
 
+.availability-checking {
+  color: #9d7a43;
+  font-weight: 600;
+}
+
+.availability-ok {
+  color: #1d9e75;
+  font-weight: 600;
+}
+
+.availability-none {
+  color: #b03a2e;
+  font-weight: 600;
+}
+
 .selected-data-box {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

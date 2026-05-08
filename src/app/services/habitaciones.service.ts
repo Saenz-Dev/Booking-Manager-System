@@ -96,19 +96,28 @@ export class HabitacionesService {
         );
     }
 
-    getReservasByUsuario(idUsuario: string) {
-        const params = {
-            id_usuario: idUsuario
-        };
-
+    getReservasByUsuario(_idUsuario?: string) {
         const options = {
-            params,
             headers: {
                 'Authorization': this.buildAuthHeader()
             }
         };
 
-        return this._http.get(this.url + 'reservas', options).pipe(
+        return this._http.get(this.url + 'reservas/mis-reservas', options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    getMisReservasMesas() {
+        const options = {
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.get(this.url + 'reservas/mesas/mis-reservas', options).pipe(
             map(response => {
                 return response;
             })
@@ -188,6 +197,120 @@ export class HabitacionesService {
         };
 
         return this._http.delete(this.url + 'cabanias', options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    // Métodos para mesas de restaurante
+    getMesas() {
+        const options = {
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+        return this._http.get(this.url + 'mesas', options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    getDisponibilidadMesas(fechaHoraInicio: string, fechaHoraFin: string, idMesa?: string) {
+        const params: any = {
+            fecha_hora_inicio: fechaHoraInicio,
+            fecha_hora_fin: fechaHoraFin
+        };
+
+        if (idMesa) {
+            params.id_mesa = idMesa;
+        }
+
+        const options = {
+            params,
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.get(this.url + 'reservas/mesas/disponibilidad', options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    postReservaMesa(datos: any) {
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.post(this.url + 'reservas/mesas', datos, options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    getReservasMesas(idUsuario?: string, idReserva?: string, idMesa?: string) {
+        const params: any = {};
+
+        if (idUsuario) {
+            params.id_usuario = idUsuario;
+        }
+        if (idReserva) {
+            params.id_reserva = idReserva;
+        }
+        if (idMesa) {
+            params.id_mesa = idMesa;
+        }
+
+        const options = {
+            params,
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.get(this.url + 'reservas/mesas', options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    putReservaMesa(datos: any) {
+        const options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.put(this.url + 'reservas/mesas', datos, options).pipe(
+            map(response => {
+                return response;
+            })
+        );
+    }
+
+    deleteReservaMesa(idReserva: string) {
+        const params = {
+            id_reserva: idReserva
+        };
+
+        const options = {
+            params,
+            headers: {
+                'Authorization': this.buildAuthHeader()
+            }
+        };
+
+        return this._http.delete(this.url + 'reservas/mesas', options).pipe(
             map(response => {
                 return response;
             })

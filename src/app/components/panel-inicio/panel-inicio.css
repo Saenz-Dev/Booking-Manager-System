@@ -240,6 +240,55 @@
   font-size: 14px;
 }
 
+.invoice-create {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(31, 26, 23, 0.08);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.invoice-create h4 {
+  font-size: 16px;
+  color: var(--color-text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.invoice-create p {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.8rem;
+}
+
+.invoice-create-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.invoice-create-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+  border: 1px solid rgba(31, 26, 23, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.invoice-create-item strong {
+  display: block;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.invoice-create-item span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

@@ -24,6 +24,7 @@
     <button class="tab-btn" [class.active]="activeTab === 'facturas'" (click)="showTab('facturas')" id="tab-facturas">
       <i class="bi bi-receipt tab-icon" aria-hidden="true"></i> Facturas
     </button>
+
     <button class="tab-btn" [class.active]="activeTab === 'perfil'" (click)="showTab('perfil')" id="tab-perfil">
       <i class="bi bi-person-circle tab-icon" aria-hidden="true"></i> Mi perfil
     </button>
@@ -38,23 +39,23 @@
   <div class="panel" [class.active]="activeTab === 'historial'" id="panel-historial">
     <p class="section-title">Historial de reservas</p>
     <div class="history-list" *ngIf="!isLoadingHistorial && reservasHistorial.length > 0">
-      <div class="reservation-row res-room" *ngFor="let reserva of reservasHistorial">
-        <div class="res-icon">🛏</div>
+      <div class="reservation-row" *ngFor="let reserva of reservasHistorial" [ngClass]="reserva.tipo_reserva === 'mesa' ? 'res-table' : 'res-room'">
+        <div class="res-icon">{{ getIconoReserva(reserva) }}</div>
         <div class="res-info">
-          <strong>Reserva #{{ reserva.id_reserva }}</strong>
+          <strong>{{ getTituloReserva(reserva) }}</strong>
           <span>{{ getResumenReserva(reserva) }}</span>
         </div>
         <span class="res-status" [class]="'res-status ' + getEstadoReservaClass(reserva.estado)">
           {{ getEstadoReservaLabel(reserva.estado) }}
         </span>
         <div class="res-actions">
-          <button class="btn-sm confirm" type="button" *ngIf="puedeConfirmarReserva(reserva)" [disabled]="estaProcesandoConfirmacion(reserva)" (click)="confirmarReserva(reserva)">
+          <button class="btn-sm confirm" type="button" *ngIf="puedeConfirmarReserva(reserva)" [disabled]="estaProcesandoConfirmacion(reserva) || isReservationExpiredAndNotConfirmed(reserva)" (click)="confirmarReserva(reserva)">
             {{ estaProcesandoConfirmacion(reserva) ? 'Confirmando...' : 'Confirmar reserva' }}
           </button>
-          <button class="btn-sm" type="button" *ngIf="!estaReservaConfirmada(reserva)" (click)="modificarReserva(reserva)">
+          <button class="btn-sm" type="button" *ngIf="!estaReservaConfirmada(reserva)" [disabled]="isReservationExpiredAndNotConfirmed(reserva)" (click)="modificarReserva(reserva)">
             Modificar
           </button>
-          <button class="btn-sm danger" type="button" *ngIf="puedeCancelarReserva(reserva)" [disabled]="!puedeCancelarReserva(reserva)" (click)="abrirModalCancelarReserva(reserva)">
+          <button class="btn-sm danger" type="button" *ngIf="puedeCancelarReserva(reserva)" [disabled]="!puedeCancelarReserva(reserva) || isReservationExpiredAndNotConfirmed(reserva)" (click)="abrirModalCancelarReserva(reserva)">
             Cancelar reserva
           </button>
         </div>
@@ -73,57 +74,63 @@
   <!-- PANEL: FACTURAS -->
   <div class="panel" [class.active]="activeTab === 'facturas'" id="panel-facturas">
     <p class="section-title">Facturas</p>
-    <div id="invoice-view">
-      <div class="invoice-box" id="inv1">
-        <div class="invoice-header">
+
+    <div class="history-empty" *ngIf="isLoadingFacturas">
+      Cargando facturas...
+    </div>
+
+    <div class="invoice-create" *ngIf="!isLoadingFacturas">
+      <h4>Generar factura</h4>
+      <p>Las reservas confirmadas que aun no tienen factura aparecen aqui.</p>
+      <div class="invoice-create-list" *ngIf="getReservasFacturables().length > 0; else noReservasFacturables">
+        <div class="invoice-create-item" *ngFor="let reserva of getReservasFacturables()">
           <div>
-            <h2>Factura #GP-2024-0083</h2>
-            <p>Emitida: 17 de junio de 2024 &nbsp;·&nbsp; Carlos Mendoza</p>
+            <strong>Reserva #{{ reserva.id_reserva }}</strong>
+            <span>{{ getTituloReserva(reserva) }} - {{ getResumenReserva(reserva) }}</span>
           </div>
-          <span class="invoice-badge status-confirmed">Pagada</span>
-        </div>
-        <table class="invoice-table">
-          <tr><th>Descripción</th><th>Und.</th><th>Valor</th></tr>
-          <tr><td>Suite — Hab. 412 (3 noches)</td><td>3</td><td>$660.000</td></tr>
-          <tr><td>Minibar</td><td>1</td><td>$48.000</td></tr>
-          <tr><td>Servicio de lavandería</td><td>1</td><td>$18.000</td></tr>
-          <tr><td>IVA 19%</td><td></td><td>$138.024</td></tr>
-        </table>
-        <div class="invoice-total">
-          <span>Total a pagar</span>
-          <span>$864.024</span>
-        </div>
-        <div class="invoice-actions">
-          <button class="btn-sm" (click)="showToast('PDF descargado')">Descargar PDF</button>
-          <button class="btn-sm" (click)="showToast('Enviado a tu correo')">Enviar por correo</button>
+          <button class="btn-sm confirm" type="button" (click)="generarFacturaDesdeReserva(reserva)" [disabled]="estaGenerandoFacturaReserva(reserva)">
+            {{ estaGenerandoFacturaReserva(reserva) ? 'Generando...' : 'Generar factura' }}
+          </button>
         </div>
       </div>
+      <ng-template #noReservasFacturables>
+        <div class="history-empty">No hay reservas confirmadas pendientes por facturar.</div>
+      </ng-template>
+    </div>
 
-      <div class="invoice-box spaced">
-        <div class="invoice-header">
-          <div>
-            <h2>Factura #GP-2024-0061</h2>
-            <p>Emitida: 4 de mayo de 2024 &nbsp;·&nbsp; Carlos Mendoza</p>
-          </div>
-          <span class="invoice-badge status-confirmed">Pagada</span>
+    <div class="history-list" *ngIf="!isLoadingFacturas && getFacturasDelUsuario().length > 0">
+      <div class="reservation-row" *ngFor="let factura of getFacturasDelUsuario()">
+        <div class="res-icon">🧾</div>
+        <div class="res-info">
+          <strong>Factura #{{ factura.numero_factura }}</strong>
+          <span>
+            Reserva #{{ factura.id_reserva }} - Subtotal: {{ formatCurrency(factura.subtotal) }} - IVA: {{ formatCurrency(factura.impuestos) }} - Total: {{ formatCurrency(factura.total) }}
+          </span>
         </div>
-        <table class="invoice-table">
-          <tr><th>Descripción</th><th>Und.</th><th>Valor</th></tr>
-          <tr><td>Habitación doble — Hab. 208 (2 noches)</td><td>2</td><td>$280.000</td></tr>
-          <tr><td>Desayuno buffet (2 pax × 2 días)</td><td>4</td><td>$80.000</td></tr>
-          <tr><td>IVA 19%</td><td></td><td>$68.400</td></tr>
-        </table>
-        <div class="invoice-total">
-          <span>Total a pagar</span>
-          <span>$428.400</span>
-        </div>
-        <div class="invoice-actions">
-          <button class="btn-sm" (click)="showToast('PDF descargado')">Descargar PDF</button>
-          <button class="btn-sm" (click)="showToast('Enviado a tu correo')">Enviar por correo</button>
+        <span class="res-status" [class]="'res-status ' + getEstadoFacturaClass(factura.estado)">
+          {{ factura.estado === 'paga' ? 'Pagada' : 'Pendiente' }}
+        </span>
+        <div class="res-actions">
+          <button class="btn-sm" type="button" (click)="verFacturaPdf(factura)">Ver / Imprimir</button>
+          <!-- <button class="btn-sm" type="button" (click)="cambiarEstadoFactura(factura, 'pendiente')" [disabled]="estaActualizandoFactura(factura) || factura.estado === 'pendiente'">
+            Pendiente
+          </button> -->
+          <!-- <button class="btn-sm confirm" type="button" (click)="cambiarEstadoFactura(factura, 'paga')" [disabled]="estaActualizandoFactura(factura) || factura.estado === 'paga'">
+            Pagar
+          </button> -->
+          <button class="btn-sm confirm" type="button" (click)="enviarFactura(factura.id_factura)">
+            Enviar por correo
+          </button>
         </div>
       </div>
     </div>
+
+    <div class="history-empty" *ngIf="!isLoadingFacturas && getFacturasDelUsuario().length === 0">
+      No hay facturas registradas.
+    </div>
   </div>
+
+
 
   <!-- PANEL: PERFIL -->
   <div class="panel" [class.active]="activeTab === 'perfil'" id="panel-perfil">
@@ -157,9 +164,10 @@
 
 <div class="logout-modal-backdrop" *ngIf="mostrarModalEditarReserva" (click)="cerrarModalEditarReserva()">
   <div class="logout-modal edit-reserva-modal" role="dialog" aria-modal="true" aria-labelledby="edit-reservation-modal-title" (click)="$event.stopPropagation()">
-    <h3 id="edit-reservation-modal-title">Modificar reserva</h3>
+    <h3 id="edit-reservation-modal-title">{{ getTituloEdicionReserva(reservaSeleccionadaParaEditar) }}</h3>
     <app-editar-reserva
       [reserva]="reservaSeleccionadaParaEditar"
+      [tipoReserva]="reservaSeleccionadaParaEditar?.tipo_reserva ?? null"
       (cancelEdit)="cerrarModalEditarReserva()"
       (reservationUpdated)="onReservaModificada($event)">
     </app-editar-reserva>
