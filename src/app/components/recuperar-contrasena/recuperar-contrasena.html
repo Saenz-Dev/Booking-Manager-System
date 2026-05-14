@@ -1,31 +1,146 @@
 <div class="recover-wrapper">
   <div class="recover-card">
-    <h2>Recuperar contraseña</h2>
-    <p class="subtitle">
-      Ingresa tu correo y te enviaremos los pasos para restablecer tu contraseña.
-    </p>
+    <!-- PASO 1: Solicitar Recuperación -->
+    <div *ngIf="paso === 1">
+      <h2>Recuperar contraseña</h2>
+      <p class="subtitle">
+        Ingresa tu correo y te enviaremos los pasos para restablecer tu contraseña.
+      </p>
 
-    <form (ngSubmit)="enviarRecuperacion()">
-      <div class="input-group">
-        <label for="correo">Correo electrónico</label>
-        <input
-          id="correo"
-          type="email"
-          name="correo"
-          placeholder="tu@correo.com"
-          [(ngModel)]="email"
-          required
-        >
+      <form (ngSubmit)="enviarRecuperacion()">
+        <div class="input-group">
+          <label for="correo">Correo electrónico</label>
+          <input
+            id="correo"
+            type="email"
+            name="correo"
+            placeholder="tu@correo.com"
+            [(ngModel)]="email"
+            [disabled]="cargando"
+            required
+          >
+        </div>
+
+        <button type="submit" class="recover-btn" [disabled]="cargando">
+          {{ cargando ? 'Enviando...' : 'Enviar enlace' }}
+        </button>
+
+        <p class="error" *ngIf="error">{{ error }}</p>
+        <p class="success" *ngIf="mensaje">{{ mensaje }}</p>
+      </form>
+
+      <div class="back-login">
+        <a [routerLink]="['/login']">Volver al inicio de sesión</a>
+      </div>
+    </div>
+
+    <!-- PASO 2: Validar Token -->
+    <div *ngIf="paso === 2">
+      <h2>Verificar token</h2>
+      <p class="subtitle">
+        <span *ngIf="resetToken">Hemos recibido tu token. </span>
+        Ingresa el código de recuperación que recibiste.
+      </p>
+
+      <div *ngIf="tiempoExpiracion > 0" class="tiempo-expiracion">
+        <strong>Tiempo restante: {{ formatearTiempo(tiempoExpiracion) }}</strong>
       </div>
 
-      <button type="submit" class="recover-btn">Enviar enlace</button>
+      <form (ngSubmit)="validarToken()">
+        <div class="input-group">
+          <label for="token">Token de recuperación (copia lo que está despues de ?token=)</label>
+          <input
+            id="token"
+            type="text"
+            name="token"
+            placeholder="Pega el token aquí"
+            [(ngModel)]="token"
+            [disabled]="cargando || !!resetToken"
+            required
+          >
+          <small *ngIf="resetToken" class="hint">Token recibido automáticamente (desarrollo)</small>
+        </div>
 
-      <p class="error" *ngIf="error">{{ error }}</p>
-      <p class="success" *ngIf="mensaje">{{ mensaje }}</p>
-    </form>
+        <button type="submit" class="recover-btn" [disabled]="cargando || tiempoExpiracion <= 0">
+          {{ cargando ? 'Validando...' : 'Validar token' }}
+        </button>
 
-    <div class="back-login">
-      <a [routerLink]="['/login']">Volver al inicio de sesión</a>
+        <p class="error" *ngIf="error">{{ error }}</p>
+        <p class="success" *ngIf="mensaje">{{ mensaje }}</p>
+      </form>
+
+      <div class="back-login">
+        <button type="button" class="link-btn" (click)="volver()">Volver</button>
+      </div>
+    </div>
+
+    <!-- PASO 3: Nueva Contraseña -->
+    <div *ngIf="paso === 3">
+      <h2>Nueva contraseña</h2>
+      <p class="subtitle">
+        Ingresa tu nueva contraseña. Debe contener al menos 6 caracteres, una mayúscula y un número.
+      </p>
+
+      <form (ngSubmit)="restablecerContrasena()">
+        <div class="input-group">
+          <label for="nueva-contrasena">Nueva contraseña</label>
+          <div class="password-input">
+            <input
+              [type]="mostrarContrasena ? 'text' : 'password'"
+              id="nueva-contrasena"
+              name="nueva-contrasena"
+              placeholder="Tu nueva contraseña"
+              [(ngModel)]="nuevaContrasena"
+              [disabled]="cargando"
+              required
+            >
+            <button type="button" class="toggle-btn" (click)="toggleMostrarContrasena()">
+              {{ mostrarContrasena ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="confirmar-contrasena">Confirmar contraseña</label>
+          <div class="password-input">
+            <input
+              [type]="mostrarContrasena ? 'text' : 'password'"
+              id="confirmar-contrasena"
+              name="confirmar-contrasena"
+              placeholder="Confirma tu contraseña"
+              [(ngModel)]="confirmarContrasena"
+              [disabled]="cargando"
+              required
+            >
+            <button type="button" class="toggle-btn" (click)="toggleMostrarContrasena()">
+              {{ mostrarContrasena ? '👁️' : '👁️‍🗨️' }}
+            </button>
+          </div>
+        </div>
+
+        <div class="requisitos">
+          <p class="req" [class.cumplido]="nuevaContrasena.length >= 6">
+            ✓ Mínimo 6 caracteres
+          </p>
+          <p class="req" [class.cumplido]="/[A-Z]/.test(nuevaContrasena)">
+            ✓ Al menos una mayúscula
+          </p>
+          <p class="req" [class.cumplido]="/[0-9]/.test(nuevaContrasena)">
+            ✓ Al menos un número
+          </p>
+        </div>
+
+        <button type="submit" class="recover-btn" [disabled]="cargando">
+          {{ cargando ? 'Actualizando...' : 'Actualizar contraseña' }}
+        </button>
+
+        <p class="error" *ngIf="error">{{ error }}</p>
+        <p class="success" *ngIf="mensaje">{{ mensaje }}</p>
+      </form>
+
+      <div class="back-login">
+        <button type="button" class="link-btn" (click)="volver()">Volver</button>
+      </div>
     </div>
   </div>
 </div>

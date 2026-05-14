@@ -75,11 +75,11 @@
   <div class="panel" [class.active]="activeTab === 'facturas'" id="panel-facturas">
     <p class="section-title">Facturas</p>
 
-    <div class="history-empty" *ngIf="isLoadingFacturas">
+    <!-- <div class="history-empty" *ngIf="isLoadingFacturas">
       Cargando facturas...
-    </div>
+    </div> -->
 
-    <div class="invoice-create" *ngIf="!isLoadingFacturas">
+    <div class="invoice-create" >
       <h4>Generar factura</h4>
       <p>Las reservas confirmadas que aun no tienen factura aparecen aqui.</p>
       <div class="invoice-create-list" *ngIf="getReservasFacturables().length > 0; else noReservasFacturables">
@@ -98,7 +98,7 @@
       </ng-template>
     </div>
 
-    <div class="history-list" *ngIf="!isLoadingFacturas && getFacturasDelUsuario().length > 0">
+    <div class="history-list" *ngIf="getFacturasDelUsuario().length > 0">
       <div class="reservation-row" *ngFor="let factura of getFacturasDelUsuario()">
         <div class="res-icon">🧾</div>
         <div class="res-info">
@@ -125,7 +125,7 @@
       </div>
     </div>
 
-    <div class="history-empty" *ngIf="!isLoadingFacturas && getFacturasDelUsuario().length === 0">
+    <div class="history-empty" *ngIf="getFacturasDelUsuario().length === 0">
       No hay facturas registradas.
     </div>
   </div>
