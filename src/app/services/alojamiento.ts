@@ -9,6 +9,7 @@ export interface Alojamiento {
   precio: number;
   capacidad: number;
   descripcion: string;
+  imagenes: string;
 }
 
 @Injectable({

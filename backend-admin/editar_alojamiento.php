@@ -9,19 +9,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(200); exit();
 include "conexion.php";
 
 $data        = json_decode(file_get_contents("php://input"), true);
-$id          = $data['id'];
-$nombre      = $data['nombre'];
-$ubicacion   = $data['ubicacion'];
-$precio      = $data['precio'];
-$capacidad   = $data['capacidad'];
-$descripcion = $data['descripcion'];
+$id          = $data['id'] ?? null;
+$nombre      = $data['nombre'] ?? '';
+$ubicacion   = $data['ubicacion'] ?? '';
+$precio      = $data['precio'] ?? 0;
+$capacidad   = $data['capacidad'] ?? 0;
+$descripcion = $data['descripcion'] ?? '';
+$imagenes    = $data['imagenes'] ?? '[]'; // Agregamos la variable de imágenes
 
-$sql = "UPDATE alojamientos 
-        SET nombre=?, ubicacion=?, precio=?, capacidad=?, descripcion=?
-        WHERE id=?";
+// Validación rápida de seguridad
+if (!$id) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "msg" => "Falta el ID del alojamiento para poder editar."]);
+    exit();
+}
 
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ssdisi", $nombre, $ubicacion, $precio, $capacidad, $descripcion, $id);
-$stmt->execute();
+try {
+    // Agregamos imagenes=? a la consulta SQL
+    $sql = "UPDATE alojamientos 
+            SET nombre=?, ubicacion=?, precio=?, capacidad=?, descripcion=?, imagenes=?
+            WHERE id=?";
 
-echo json_encode(["status" => "ok"]);
+    $stmt = $conn->prepare($sql);
+    
+    if (!$stmt) {
+        throw new Exception($conn->error);
+    }
+
+    // "ssdissi" -> Añadimos una 's' para $imagenes antes de la 'i' del $id
+    $stmt->bind_param("ssdissi", $nombre, $ubicacion, $precio, $capacidad, $descripcion, $imagenes, $id);
+    
+    if (!$stmt->execute()) {
+        throw new Exception($stmt->error);
+    }
+
+    echo json_encode(["status" => "ok"]);
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode([
+        "status" => "error",
+        "msg" => $e->getMessage()
+    ]);
+}
