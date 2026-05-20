@@ -3,7 +3,6 @@ import { CommonModule, TitleCasePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AlojamientoService, Alojamiento } from '../../services/alojamiento';
 
-// Interfaz para el tipado de las reservas
 export interface Reserva {
   id?: number;
   nombre_usuario: string;
@@ -240,7 +239,7 @@ export class PanelAdminComponent implements OnInit {
   }
 
   cargarUsuarios(): void {
-  fetch('http://localhost/tu-proyecto-backend/obtener-usuarios.php') // ← Ajusta tu ruta local
+  fetch('http://localhost/backend-admin/obtener-usuarios.php') 
     .then(res => res.json())
     .then(data => {
       this.usuarios = data ?? [];
@@ -284,9 +283,7 @@ export class PanelAdminComponent implements OnInit {
     };
   }
 
-  // ==========================================
-  // GETTERS / FILTROS EN TIEMPO REAL
-  // ==========================================
+
   get alojamientosFiltrados(): Alojamiento[] {
     if (!this.busqueda.trim()) return this.alojamientos;
     const q = this.busqueda.toLowerCase();

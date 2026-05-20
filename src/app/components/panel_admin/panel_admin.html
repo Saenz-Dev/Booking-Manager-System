@@ -1,6 +1,6 @@
 <div class="admin-layout" [class.sidebar-collapsed]="sidebarColapsado">
 
-  <!-- ░░ MODAL  -->
+  <!-- MODAL  -->
   <div class="modal-overlay" *ngIf="modalVisible" (click)="cerrarModal()">
     <div class="modal-box" (click)="$event.stopPropagation()">
 
@@ -27,7 +27,7 @@
     </div>
   </div>
 
-  <!-- ░░ SIDEBAR ░░ -->
+  <!--  SIDEBAR  -->
   <aside class="sidebar" [class.collapsed]="sidebarColapsado">
 
     <div class="sidebar-header">
@@ -70,7 +70,7 @@
 
   </aside>
 
-  <!-- ░░ CONTENIDO ░░ -->
+  <!-- CONTENIDO -->
   <main class="main">
 
     <!-- TOPBAR -->
@@ -93,7 +93,7 @@
       </div>
     </header>
 
-    <!-- ░░ SECCIÓN ALOJAMIENTOS ░░ -->
+    <!-- SECCIÓN ALOJAMIENTOS -->
     <section *ngIf="seccionActual === 'alojamientos'" class="section-content">
 
       <!-- CONTROLES -->

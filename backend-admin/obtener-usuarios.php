@@ -21,7 +21,6 @@ $data = [];
 
 if ($result) {
     while($row = $result->fetch_assoc()){
-        // Forzamos el tipo numérico para el contador
         $row['total_reservas'] = (int)$row['total_reservas'];
         $data[] = $row;
     }

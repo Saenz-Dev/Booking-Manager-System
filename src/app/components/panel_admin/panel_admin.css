@@ -1,6 +1,6 @@
-/* =========================
+/* 
 RESET
-========================= */
+*/
 
 *{
 margin:0;
@@ -14,9 +14,9 @@ background:#eef4fb;
 color:#1e293b;
 }
 
-/* =========================
+/*
 LAYOUT
-========================= */
+*/
 
 .admin-layout{
 display:grid;
@@ -29,9 +29,9 @@ transition:all .3s ease;
 grid-template-columns:80px 1fr;
 }
 
-/* =========================
+/* 
 SIDEBAR
-========================= */
+*/
 
 .sidebar{
 background:#1e3a8a;
@@ -121,18 +121,18 @@ opacity:0;
 opacity:1;
 }
 
-/* =========================
+/* 
 MAIN AREA
-========================= */
+ */
 
 .main{
 display:flex;
 flex-direction:column;
 }
 
-/* =========================
+/* 
 TOPBAR
-========================= */
+*/
 
 .topbar{
 height:70px;
@@ -323,7 +323,6 @@ padding:30px;
   transition: all 0.2s ease;
 }
 
-/* Cambia a verde sutil si el usuario ya cuenta con reservas activas o pasadas */
 .history-pill.has-bookings {
   background-color: #eff6ff;
   color: #2563eb;
