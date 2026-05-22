@@ -60,9 +60,9 @@
         <div class="nav-indicator"></div>
       </div>
 
-      <div class="nav-item" [class.active]="seccionActual === 'reportes'" (click)="cambiarSeccion('reportes')">
-        <div class="nav-icon"><i class="fa-solid fa-chart-line"></i></div>
-        <span class="nav-label">Reportes</span>
+      <div class="nav-item" [class.active]="seccionActual === 'facturas'" (click)="cambiarSeccion('facturas')">
+        <div class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <span class="nav-label">Facturas</span>
         <div class="nav-indicator"></div>
       </div>
 
@@ -90,8 +90,19 @@
           <span class="stat-num">{{ totalAlojamientos }}</span>
           <span class="stat-lbl">alojamientos</span>
         </div>
+        <button class="btn-logout" (click)="cerrarSesion()" title="Cerrar sesión">
+          <i class="fa-solid fa-sign-out-alt"></i>
+          <span>Cerrar sesión</span>
+        </button>
       </div>
     </header>
+
+    <!-- DEBUG BANNER (temporal) -->
+    <div class="debug-banner" style="padding:6px 12px;background:#fff6; border:1px solid #eee; font-size:13px; display:flex; gap:12px; align-items:center;">
+      <strong>Debug:</strong>
+      <span>seccionActual = {{ seccionActual }}</span>
+      <span>facturas = {{ facturas.length }}</span>
+    </div>
 
     <!-- SECCIÓN ALOJAMIENTOS -->
     <section *ngIf="seccionActual === 'alojamientos'" class="section-content">
@@ -147,17 +158,9 @@
 
               <div class="form-group">
                 <label class="form-label">
-                  <i class="fa-solid fa-location-dot label-icon"></i> Ubicación
+                  <i class="fa-solid fa-dollar-sign label-icon"></i> Precio por persona
                 </label>
-                <input type="text" class="form-input" [(ngModel)]="nuevoAlojamiento.ubicacion" name="ubicacion"
-                  placeholder="Ej: Cartagena, Colombia" required />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">
-                  <i class="fa-solid fa-dollar-sign label-icon"></i> Precio por noche
-                </label>
-                <input type="number" class="form-input" [(ngModel)]="nuevoAlojamiento.precio" name="precio"
+                <input type="number" class="form-input" [(ngModel)]="nuevoAlojamiento.precio_por_persona" name="precio_por_persona"
                   placeholder="0" min="0" required />
               </div>
 
@@ -173,41 +176,14 @@
                 <label class="form-label">
                   <i class="fa-solid fa-align-left label-icon"></i> Descripción
                 </label>
-                <textarea class="form-input form-textarea" [(ngModel)]="nuevoAlojamiento.descripcion" name="descripcion"
-                  placeholder="Describe las características del alojamiento..." rows="3"></textarea>
               </div>
 
-              <!-- IMAGEN UPLOAD -->
-              <div class="form-group form-full">
+              <div class="form-group">
                 <label class="form-label">
-                  <i class="fa-solid fa-images label-icon"></i> Imágenes
+                  <i class="fa-solid fa-link label-icon"></i> URL de la imagen
                 </label>
-
-                <div class="upload-zone" (click)="fileInput.click()" (dragover)="$event.preventDefault()"
-                  (drop)="onDrop($event)">
-                  <input #fileInput type="file" accept="image/*" multiple class="file-input-hidden"
-                    (change)="onImagenesSeleccionadas($event)" />
-                  <div class="upload-placeholder" *ngIf="imagenesPreview.length === 0">
-                    <i class="fa-solid fa-cloud-arrow-up upload-icon-big"></i>
-                    <p class="upload-text">Arrastra imágenes aquí o <span class="upload-link">haz clic para
-                        seleccionar</span></p>
-                    <p class="upload-hint">PNG, JPG, WEBP — Máx. 5 MB por imagen</p>
-                  </div>
-                  <div class="images-preview-grid" *ngIf="imagenesPreview.length > 0"
-                    (click)="$event.stopPropagation()">
-                    <div class="preview-item" *ngFor="let img of imagenesPreview; let i = index">
-                      <img [src]="img" class="preview-img" alt="Preview" />
-                      <button type="button" class="preview-remove"
-                        (click)="eliminarImagenPreview(i); $event.stopPropagation()">
-                        ✕
-                      </button>
-                    </div>
-                    <div class="preview-add" (click)="fileInput.click()">
-                      <i class="fa-solid fa-plus"></i>
-                    </div>
-                  </div>
-                </div>
-
+                <input type="url" class="form-input" [(ngModel)]="nuevoAlojamiento.url_imagen" name="url_imagen"
+                  placeholder="https://ejemplo.com/imagen.png" />
               </div>
 
             </div>
@@ -233,8 +209,7 @@
             <tr>
               <th>#</th>
               <th>Nombre</th>
-              <th>Ubicación</th>
-              <th>Precio / noche</th>
+              <th>Precio x persona</th>
               <th>Capacidad</th>
               <th>Imágenes</th>
               <th>Acciones</th>
@@ -248,47 +223,27 @@
                   <span>{{ a.nombre }}</span>
                 </div>
               </td>
-              <td class="td-ubicacion">
-                <i class="fa-solid fa-location-dot td-icon"></i> {{ a.ubicacion }}
-              </td>
               <td class="td-precio">
-                <span class="precio-badge">${{ a.precio | number:'1.0-0' }}</span>
+                <span class="precio-badge">${{ a.precio_por_persona }}</span>
               </td>
               <td class="td-capacidad">
-                <i class="fa-solid fa-user td-icon"></i> {{ a.capacidad | number:'1.0-0' }}
+                <i class="fa-solid fa-user td-icon"></i> {{ a.capacidad }} 
               </td>
               <td class="td-imagenes">
-
-                <ng-container *ngIf="parseImagenes(a.imagenes) as imgs">
-
-                  <div class="table-thumbs" *ngIf="imgs.length > 0">
-
-                    <img *ngFor="let img of imgs.slice(0, 3)" [src]="img" class="table-thumb" alt="imagen" />
-
-                    <span class="table-thumb-more" *ngIf="imgs.length > 3">
-                      +{{ imgs.length - 3 }}
-                    </span>
-
-                  </div>
-
-                  <span class="no-images" *ngIf="imgs.length === 0">—</span>
-
-                </ng-container>
-
+                <img *ngIf="a.url_imagen" [src]="a.url_imagen" class="table-thumb" alt="{{ a.nombre }}" />
+                <div *ngIf="!a.url_imagen" class="table-thumbs-empty"></div>
               </td>
               <td class="td-acciones">
                 <button class="btn-action btn-edit" (click)="editarAlojamiento(a)" title="Editar">
                   <i class="fa-solid fa-pen"></i> Editar
                 </button>
-                <button class="btn-action btn-delete" (click)="confirmarEliminar(a.id!)" title="Eliminar">
+                <button class="btn-action btn-delete" (click)="confirmarEliminar(a.id)" title="Eliminar">
                   <i class="fa-solid fa-trash"></i> Eliminar
                 </button>
               </td>
             </tr>
             <tr *ngIf="alojamientosFiltrados.length === 0">
-              <td colspan="7" class="empty-row">
-                <i class="fa-solid fa-inbox empty-icon"></i>
-                <p>No se encontraron alojamientos</p>
+              <td colspan="6" class="empty-row">
               </td>
             </tr>
           </tbody>
@@ -302,7 +257,7 @@
       <div class="section-controls">
         <div class="controls-left">
           <h1 class="section-title">Control de Reservas</h1>
-          <p class="section-subtitle">{{ reservasFiltradas.length }} resultados encontrados</p>
+          <p class="section-subtitle">{{ reservasFiltradas.length }} resultados encontrados de {{ totalReservas }} reservas totales</p>
         </div>
         <div class="controls-right">
           
@@ -313,10 +268,38 @@
           </div>
 
           <div class="search-wrapper">
+            <i class="fa-solid fa-layer-group search-icon"></i>
+            <select class="search-input select-input" [(ngModel)]="filtroTipo">
+              <option value="todos">Todas las reservas</option>
+              <option value="cabaña">Cabañas</option>
+              <option value="mesa">Mesas</option>
+            </select>
+          </div>
+
+          <div class="search-wrapper">
             <i class="fa-solid fa-calendar-days search-icon"></i>
             <input type="date" class="search-input" [(ngModel)]="filtroFecha" />
           </div>
 
+        </div>
+      </div>
+
+      <div class="reservation-stats">
+        <div class="reservation-stat-card">
+          <span class="reservation-stat-label">Reservas totales</span>
+          <strong class="reservation-stat-value">{{ totalReservas }}</strong>
+        </div>
+        <div class="reservation-stat-card">
+          <span class="reservation-stat-label">Cabañas</span>
+          <strong class="reservation-stat-value">{{ reservasCabania }}</strong>
+        </div>
+        <div class="reservation-stat-card">
+          <span class="reservation-stat-label">Mesas</span>
+          <strong class="reservation-stat-value">{{ reservasMesa }}</strong>
+        </div>
+        <div class="reservation-stat-card">
+          <span class="reservation-stat-label">Confirmadas</span>
+          <strong class="reservation-stat-value">{{ reservasConfirmadas }}</strong>
         </div>
       </div>
 
@@ -325,41 +308,64 @@
           <thead>
             <tr>
               <th>#</th>
+              <th>ID</th>
               <th>Usuario</th>
-              <th>Alojamiento</th>
-              <th>Fecha Entrada</th>
-              <th>Fecha Salida</th>
-              <th>Tiempo Reservado</th>
+              <th>Tipo</th>
+              <th>Recurso</th>
+              <th>Fechas</th>
+              <th>Personas</th>
               <th>Estado</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let r of reservasFiltradas; let i = index" class="table-row">
               <td class="td-index">{{ i + 1 }}</td>
-              <td class="td-nombre">
-                <strong>{{ r.nombre_usuario }}</strong>
+              <td class="td-id">
+                <span class="reservation-id">#{{ r.id_reserva }}</span>
               </td>
-              <td>{{ r.alojamiento_nombre }}</td>
-              <td><i class="fa-solid fa-sign-in-alt td-icon"></i> {{ r.fecha_inicio }}</td>
-              <td><i class="fa-solid fa-sign-out-alt td-icon"></i> {{ r.fecha_fin }}</td>
+              <td class="td-nombre">
+                <div class="reservation-user">
+                  <strong>{{ r.nombre_usuario }}</strong>
+                  <span class="reservation-user-email" *ngIf="r.correo_usuario">{{ r.correo_usuario }}</span>
+                </div>
+              </td>
               <td>
-                <span class="precio-badge" style="background-color: #e0f2fe; color: #0369a1;">
-                  {{ calcularNoches(r.fecha_inicio, r.fecha_fin) }} noches
+                <span class="status-badge reservation-type" [ngClass]="getTipoReservaClass(r.tipo_reserva)">
+                  {{ getTipoReservaLabel(r.tipo_reserva) }}
                 </span>
               </td>
               <td>
-                <span class="status-badge" [ngClass]="{
-                  'status-activa': r.estado?.toLowerCase() === 'activa',
-                  'status-completada': r.estado?.toLowerCase() === 'completada',
-                  'status-cancelada': r.estado?.toLowerCase() === 'cancelada'
-                }">
-                  {{ r.estado | titlecase }}
+                <div class="reservation-resource">
+                  <strong>{{ r.nombre_recurso }}</strong>
+                  <span>{{ r.detalle_recurso }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="reservation-dates">
+                  <span>
+                    <i class="fa-solid fa-right-to-bracket td-icon"></i>
+                    {{ formatearFechaHora(r.fecha_hora_inicio) }}
+                  </span>
+                  <span>
+                    <i class="fa-solid fa-right-from-bracket td-icon"></i>
+                    {{ formatearFechaHora(r.fecha_hora_fin) }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <span class="precio-badge reservation-people">
+                  {{ r.cantidad_personas > 0 ? r.cantidad_personas : 'N/D' }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="getEstadoReservaClass(r.estado)">
+                  {{ getEstadoReservaLabel(r.estado) }}
                 </span>
               </td>
             </tr>
             
             <tr *ngIf="reservasFiltradas.length === 0">
-              <td colspan="7" class="empty-row">
+              <td colspan="8" class="empty-row">
                 <i class="fa-solid fa-calendar-xmark empty-icon"></i>
                 <p>No se encontraron reservas con los filtros aplicados</p>
               </td>
@@ -375,55 +381,188 @@
       <div class="section-controls">
         <div class="controls-left">
           <h1 class="section-title">Comunidad de Usuarios</h1>
-          <p class="section-subtitle">{{ usuarios.length }} miembros registrados en la plataforma</p>
+          <p class="section-subtitle">{{ usuariosFiltrados.length }} de {{ usuarios.length }} usuarios visibles</p>
+        </div>
+        <div class="controls-right">
+          <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" class="search-input" placeholder="Buscar por nombre, correo o documento..."
+              [(ngModel)]="filtroUsuarios" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-overlay" *ngIf="mostrarFormularioUsuario">
+        <div class="form-panel" (click)="$event.stopPropagation()">
+          <div class="form-panel-header">
+            <div>
+              <h2 class="form-title">{{ editandoUsuario ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+              <p class="form-subtitle">Completa la información del usuario</p>
+            </div>
+            <button class="form-close" type="button" (click)="cancelarFormularioUsuario()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <form (ngSubmit)="guardarUsuario()">
+            <div class="grid-form">
+              <div class="form-group">
+                <label class="form-label">Nombre</label>
+                <input class="form-input" type="text" [(ngModel)]="usuarioEditando.nombres" name="usuarioNombres" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Apellido</label>
+                <input class="form-input" type="text" [(ngModel)]="usuarioEditando.apellidos" name="usuarioApellidos" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Correo</label>
+                <input class="form-input" type="email" [(ngModel)]="usuarioEditando.email" name="usuarioEmail" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Teléfono</label>
+                <input class="form-input" type="text" [(ngModel)]="usuarioEditando.telefono" name="usuarioTelefono" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tipo documento</label>
+                <input class="form-input" type="text" [(ngModel)]="usuarioEditando.tipo_documento" name="usuarioTipoDocumento" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Número documento</label>
+                <input class="form-input" type="text" [(ngModel)]="usuarioEditando.numero_documento" name="usuarioNumeroDocumento" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fecha nacimiento</label>
+                <input class="form-input" type="date" [(ngModel)]="usuarioEditando.fecha_nacimiento" name="usuarioFechaNacimiento" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Ciudad</label>
+                <input class="form-input" type="text" [(ngModel)]="usuarioEditando.ciudad" name="usuarioCiudad" />
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-cancelar" (click)="cancelarFormularioUsuario()">Cancelar</button>
+              <button type="submit" class="btn-guardar">
+                <i class="fa-solid" [class.fa-floppy-disk]="!editandoUsuario" [class.fa-pen-to-square]="editandoUsuario"></i>
+                {{ editandoUsuario ? 'Actualizar usuario' : 'Crear usuario' }}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
       <div class="user-cards-container">
         
         <div class="user-cards-header">
-          <span class="hdr-user">Usuario</span>
+            <span class="hdr-user">Nombre completo</span>
           <span class="hdr-email">Correo Electrónico</span>
           <span class="hdr-date">Fecha de Registro</span>
           <span class="hdr-history">Historial de Reservas</span>
         </div>
 
-        <div *ngFor="let u of usuarios" class="user-card-item">
+        <div *ngFor="let u of usuariosFiltrados" class="user-card-item">
           
           <div class="user-col-profile">
             <div class="user-avatar-circle">
-              {{ u.nombre.charAt(0).toUpperCase() }}
+              {{ (u.nombre_completo || obtenerNombreCompletoUsuario(u)).charAt(0).toUpperCase() }}
             </div>
             <div class="user-meta-name">
-              <h3>{{ u.nombre }}</h3>
-              <span class="user-id-badge">ID: #{{ u.id }}</span>
+              <h3>{{ u.nombre_completo || obtenerNombreCompletoUsuario(u) }}</h3>
+              <span class="user-id-badge">ID: #{{ u.id_display || u.id || 'N/D' }}</span>
             </div>
           </div>
 
           <div class="user-col-email">
-            <span class="user-email-text"><i class="fa-regular fa-envelope"></i> {{ u.email }}</span>
+            <span class="user-email-text"><i class="fa-regular fa-envelope"></i> {{ u.email_display || u.email || 'Sin correo' }}</span>
           </div>
 
           <div class="user-col-date">
             <span class="user-date-text">
-              <i class="fa-regular fa-clock"></i> {{ u.fecha_registro | date:'medium' }}
+              <i class="fa-regular fa-clock"></i> {{ u.fecha_registro ? (u.fecha_registro | date:'medium') : 'Sin fecha' }}
+            </span>
+            <span class="user-date-text" *ngIf="u.fecha_nacimiento">
+              <i class="fa-regular fa-calendar"></i> Nacimiento: {{ u.fecha_nacimiento | date:'mediumDate' }}
             </span>
           </div>
 
           <div class="user-col-history">
-            <div class="history-pill" [ngClass]="{'has-bookings': u.total_reservas > 0}">
+            <div class="history-pill" [ngClass]="{'has-bookings': (u.total_reservas ?? 0) > 0}">
               <i class="fa-solid fa-suitcase"></i>
-              <span>{{ u.total_reservas }} {{ u.total_reservas === 1 ? 'reserva' : 'reservas' }}</span>
+              <span>{{ u.total_reservas ?? 0 }} {{ (u.total_reservas ?? 0) === 1 ? 'reserva' : 'reservas' }}</span>
+            </div>
+            <div class="user-actions">
+              <button type="button" class="btn-action btn-edit" (click)="editarUsuario(u)">
+                <i class="fa-solid fa-pen"></i> Editar
+              </button>
+              <button type="button" class="btn-action btn-delete" (click)="confirmarEliminarUsuario(u)">
+                <i class="fa-solid fa-trash"></i> Eliminar
+              </button>
             </div>
           </div>
 
         </div>
 
-        <div *ngIf="usuarios.length === 0" class="empty-user-state">
+        <div *ngIf="usuariosFiltrados.length === 0" class="empty-user-state">
           <i class="fa-solid fa-users-slash"></i>
-          <p>No hay usuarios registrados actualmente.</p>
+          <p>No hay usuarios que coincidan con la búsqueda.</p>
         </div>
 
+      </div>
+    </section>
+
+    <section *ngIf="seccionActual === 'facturas'" class="section-content">
+      <div class="section-controls">
+        <div class="controls-left">
+          <h1 class="section-title">Facturas</h1>
+          <p class="section-subtitle">{{ facturas.length }} facturas</p>
+        </div>
+        <div class="controls-right">
+          <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" class="search-input" placeholder="Buscar por id o reserva..." />
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>ID Factura</th>
+              <th>Reserva</th>
+              <th>Cliente</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of facturas; let i = index">
+              <td>{{ i + 1 }}</td>
+              <td>#{{ f.id_factura ?? f.id ?? f.idFactura }}</td>
+              <td>{{ f.id_reserva ?? f.reserva_id ?? 'N/D' }}</td>
+              <td>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <strong>{{ f.nombres ?? f.cliente ?? f.nombre_cliente ?? (f.nombre_completo ?? 'Cliente') }}</strong>
+                  <small style="color:#64748b">{{ f.correo ?? f.email ?? f.cliente_correo ?? f.correo_cliente ?? '' }}</small>
+                </div>
+              </td>
+              <td>{{ (f.fecha ?? f.fecha_emision ?? f.fecha_creacion) ? ((f.fecha ?? f.fecha_emision ?? f.fecha_creacion) | date:'medium') : 'Sin fecha' }}</td>
+              <td>{{ f.total ?? f.valor ?? f.subtotal ?? '0' }}</td>
+              <td>{{ f.estado ?? 'N/D' }}</td>
+              <td style="display:flex;gap:8px;">
+                <button class="btn-action" (click)="verFacturaPdf(f)">Ver PDF</button>
+                <button class="btn-action" (click)="enviarFactura(f)">Enviar por correo</button>
+                <button class="btn-action" (click)="marcarFacturaPagada(f)">Marcar pagada</button>
+              </td>
+            </tr>
+            <tr *ngIf="facturas.length === 0">
+              <td colspan="8" class="empty-row">No hay facturas disponibles</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 

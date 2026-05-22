@@ -49,7 +49,7 @@ export class Login implements OnInit {
       this._notificacionesService.error(this.error, 'Error');
       return;
     }
-
+    console.log('Intentando iniciar sesión con:', { email: this.email, password: this.password });
     this._loginService.login(this.email, this.password).subscribe((result: any) => {
       if (result.status == 200) {
         console.log('Entra');
@@ -59,12 +59,22 @@ export class Login implements OnInit {
         console.log(result);
         localStorage.setItem('cuenta', result.usuario.correo);
         localStorage.setItem('id_usuario', result.usuario.id_usuario);
+        localStorage.setItem('id_rol', result.usuario.id_rol);
         localStorage.setItem('token', result.token);
         this._userService.getUsuarioId(localStorage.getItem('cuenta') ?? '').subscribe((userResult: any) => {
           if (userResult.status == 200) {
             localStorage.setItem('nombres', userResult.nombres);
             localStorage.setItem('apellidos', userResult.apellidos);
-            this.router.navigate(['/inicio']);
+            
+            // Redireccionar según el rol del usuario
+            const idRol = result.usuario.id_rol;
+            if (idRol === '1') {
+              // Administrador
+              this.router.navigate(['/panel_admin']);
+            } else {
+              // Usuarios normales
+              this.router.navigate(['/inicio']);
+            }
           }
         });
         return;

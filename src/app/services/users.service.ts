@@ -107,6 +107,33 @@ export class UserService {
         );
     }
 
+    eliminarUsuarioId(id_usuario: string) {
+        const params = {
+            id_usuario,
+            id: id_usuario
+        };
+
+        return this._http.delete(this.url + 'usuarios', { params }).pipe(
+            map(response => { return response })
+        );
+    }
+
+    actualizarUsuarioAdmin(id_usuario: string, datos: any) {
+        datos.id_usuario = id_usuario;
+        let options = {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + (localStorage.getItem('token') ?? '')
+            }
+        }
+
+        return this._http.put(this.url + 'usuarios', datos, options).pipe(
+            map(response => {
+                return response
+            })
+        )
+    }
+
     getUsuario(numero_identificacion: number) {
         let params = {
             'id': numero_identificacion

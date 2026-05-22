@@ -32,6 +32,18 @@ export const authTokenInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<unknown>> => {
   const router = inject(Router);
 
+  // Obtener el token del localStorage
+  const token = localStorage.getItem('token');
+
+  // Si existe el token, agregarlo al header Authorization
+  if (token) {
+    req = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+  }
+
   return next(req).pipe(
     tap((event) => {
       if (event instanceof HttpResponse) {
